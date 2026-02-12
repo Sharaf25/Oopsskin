@@ -1,11 +1,14 @@
 'use client';
 
+import { useLanguage } from '@/app/context/LanguageContext';
+
 export function CommunitySection() {
+  const { t } = useLanguage();
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl md:text-5xl font-black text-pink-500 text-center mb-12 uppercase">
-          OUR COMMUNITY
+          {t('ourCommunity')}
         </h2>
 
         <div className="grid md:grid-cols-3 gap-6">

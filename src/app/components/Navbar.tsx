@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, ShoppingCart, User, Menu, X, ChevronDown, LogOut } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, X, ChevronDown, LogOut, Languages } from 'lucide-react';
 import { useCart } from '@/app/context/CartContext';
 import { useAuth } from '@/app/context/AuthContext';
+import { useLanguage } from '@/app/context/LanguageContext';
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -13,6 +14,7 @@ export function Navbar() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { getCartCount } = useCart();
   const { user, logout, isAuthenticated } = useAuth();
+  const { language, toggleLanguage, t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,12 +25,12 @@ export function Navbar() {
   }, []);
 
   const navLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'Best Sellers', href: '/best-sellers' },
-    { name: 'New', href: '/new' },
-    { name: 'Makeup', href: '/makeup' },
-    { name: 'Packages', href: '/packages' },
-    { name: 'Skincare', href: '/skincare' },
+    { name: t('home'), href: '/' },
+    { name: t('bestSellers'), href: '/best-sellers' },
+    { name: t('new'), href: '/new' },
+    { name: t('makeup'), href: '/makeup' },
+    { name: t('packages'), href: '/packages' },
+    { name: t('skincare'), href: '/skincare' },
   ];
 
   const categories = [
@@ -78,7 +80,7 @@ export function Navbar() {
                   href="/all-products"
                   className="text-white hover:text-white hover:bg-pink-600 transition-all px-4 py-2 rounded-full text-sm font-medium flex items-center gap-1"
                 >
-                  All Products
+                  {t('allProducts')}
                   <ChevronDown size={16} className={`transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
                 </Link>
 
@@ -117,7 +119,7 @@ export function Navbar() {
                           className="inline-block bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-full uppercase text-sm transition-all transform hover:scale-105"
                           onClick={() => setIsDropdownOpen(false)}
                         >
-                          SHOP ALL PRODUCTS
+                          {t('shopAllProducts')}
                         </Link>
                       </div>
                     </div>
@@ -129,6 +131,16 @@ export function Navbar() {
 
           {/* Right Icons */}
           <div className="flex items-center space-x-4">
+            {/* Language Switcher */}
+            <button 
+              onClick={toggleLanguage}
+              className="text-white hover:text-pink-200 transition-colors flex items-center gap-1 font-medium"
+              title={language === 'en' ? 'Switch to Arabic' : 'التبديل إلى الإنجليزية'}
+            >
+              <Languages size={20} />
+              <span className="text-sm">{language === 'en' ? 'AR' : 'EN'}</span>
+            </button>
+            
             <button className="text-white hover:text-pink-200 transition-colors">
               <Search size={20} />
             </button>
@@ -158,7 +170,7 @@ export function Navbar() {
                       className="flex items-center gap-2 text-red-500 hover:text-red-600 font-medium w-full"
                     >
                       <LogOut size={18} />
-                      Logout
+                      {t('logout')}
                     </button>
                   </div>
                 )}
@@ -204,7 +216,7 @@ export function Navbar() {
               className="block text-white hover:text-pink-200 transition-colors py-2 px-4 rounded hover:bg-pink-600"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              All Products
+              {t('allProducts')}
             </Link>
           </div>
         )}

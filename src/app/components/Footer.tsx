@@ -1,7 +1,11 @@
+'use client';
+
 import Link from 'next/link';
 import { Instagram, Youtube, Twitter, Facebook, Github } from 'lucide-react';
+import { useLanguage } from '@/app/context/LanguageContext';
 
 export function Footer() {
+  const { t } = useLanguage();
   return (
     <footer className="bg-pink-500 text-white py-12">
       <div className="container mx-auto px-4">
@@ -12,11 +16,11 @@ export function Footer() {
               oopsskin
             </div>
             <div>
-              <h3 className="font-bold text-xl mb-4 uppercase">Hey Beautiful,<br />Let&apos;s Connect</h3>
+              <h3 className="font-bold text-xl mb-4 uppercase">{t('heyBeautiful')}</h3>
               <div className="flex gap-2">
                 <input
                   type="email"
-                  placeholder="join our newsletter"
+                  placeholder={t('joinNewsletter')}
                   className="flex-1 px-4 py-2 rounded-full text-gray-900"
                 />
                 <button className="bg-white text-pink-500 hover:bg-pink-100 p-2 rounded-full transition-colors">
@@ -28,38 +32,38 @@ export function Footer() {
 
           {/* About Us */}
           <div>
-            <h4 className="font-bold text-lg mb-4 uppercase">About Us</h4>
+            <h4 className="font-bold text-lg mb-4 uppercase">{t('aboutUs')}</h4>
             <ul className="space-y-2">
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Huda&apos;s VIP/Loyalty Program</Link></li>
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Ambassador Program</Link></li>
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Affiliate Program</Link></li>
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Blog</Link></li>
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Our Community</Link></li>
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Accessibility</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('vipProgram')}</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('ambassadorProgram')}</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('affiliateProgram')}</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('blog')}</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('ourCommunity')}</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('accessibility')}</Link></li>
             </ul>
           </div>
 
           {/* Contact Us */}
           <div>
-            <h4 className="font-bold text-lg mb-4 uppercase">Contact Us</h4>
+            <h4 className="font-bold text-lg mb-4 uppercase">{t('contactUs')}</h4>
             <ul className="space-y-2">
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Shipping and Delivery Info</Link></li>
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Track My Order</Link></li>
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Find My Order</Link></li>
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Returns</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('shippingInfo')}</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('trackOrder')}</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('findOrder')}</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('returns')}</Link></li>
             </ul>
           </div>
 
           {/* Legal */}
           <div>
-            <h4 className="font-bold text-lg mb-4 uppercase">Terms and Conditions of Sale</h4>
+            <h4 className="font-bold text-lg mb-4 uppercase">{t('termsConditions')}</h4>
             <ul className="space-y-2">
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Terms and Conditions of Promotions</Link></li>
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Privacy Policy</Link></li>
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Do Not Sell My Personal Information</Link></li>
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Cookie Policy</Link></li>
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Prop 65 Warning</Link></li>
-              <li><Link href="#" className="hover:text-pink-200 transition-colors">Third Party Ethical Standards</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('termsPromotions')}</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('privacyPolicy')}</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('doNotSell')}</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('cookiePolicy')}</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('prop65Warning')}</Link></li>
+              <li><Link href="#" className="hover:text-pink-200 transition-colors">{t('thirdPartyStandards')}</Link></li>
             </ul>
           </div>
         </div>
@@ -74,7 +78,7 @@ export function Footer() {
             <a href="#" className="hover:text-pink-200 transition-colors"><Github size={24} /></a>
           </div>
           <div className="text-sm">
-            © 2026 | oopsskin, All Rights Reserved.
+            © 2026 | oopsskin, {t('allRightsReserved')}.
           </div>
         </div>
       </div>

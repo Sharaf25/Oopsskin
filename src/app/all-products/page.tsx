@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useCart } from '@/app/context/CartContext';
 import { useAuth } from '@/app/context/AuthContext';
+import { useLanguage } from '@/app/context/LanguageContext';
 
 function AllProductsContent() {
   const router = useRouter();
@@ -12,9 +13,10 @@ function AllProductsContent() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const { t } = useLanguage();
 
   useEffect(() => {
-    const category = searchParams.get('category');
+    const category = searchParams?.get('category');
     if (category) {
       setSelectedSubcategory(category);
     }
@@ -22,28 +24,28 @@ function AllProductsContent() {
 
   const categories = [
     {
-      name: 'FACE',
-      items: ['Foundation', 'Powder & Setting Spray', 'Primer', 'Concealer & Corrector', 'Contour & Highlight'],
+      name: t('face'),
+      items: [t('foundation'), t('powderSettingSpray'), t('primer'), t('concealerCorrector'), t('contourHighlight')],
     },
     {
-      name: 'EYES',
-      items: ['Eyeshadow', 'Eyebrows', 'Eyeliner', 'Mascara', 'Fake Eyelashes'],
+      name: t('eyes'),
+      items: [t('eyeshadow'), t('eyebrows'), t('eyeliner'), t('mascara'), t('fakeEyelashes')],
     },
     {
-      name: 'LIPS',
-      items: ['Jelly Stained Lips', 'Lip Gloss', 'Lipstick', 'Lip Liner', 'Lip Balm'],
+      name: t('lips'),
+      items: [t('jellyStainedLips'), t('lipGloss'), t('lipstick'), t('lipLiner'), t('lipBalm')],
     },
     {
-      name: 'CHEEK',
-      items: ['Blush', 'Bronzer'],
+      name: t('cheek'),
+      items: [t('blush'), t('bronzer')],
     },
     {
-      name: 'BRUSHES & TOOLS',
-      items: ['Brushes', 'Tools & Accessories'],
+      name: t('brushesTools'),
+      items: [t('brushes'), t('toolsAccessories')],
     },
     {
-      name: 'MINIS',
-      items: ['Mini Products'],
+      name: t('minis'),
+      items: [t('miniProducts')],
     },
   ];
 
@@ -81,12 +83,12 @@ function AllProductsContent() {
       <section className="relative bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 min-h-[300px] flex items-center justify-center overflow-hidden">
         <div className="relative z-10 container mx-auto px-4 py-16 text-center">
           <h1 className="text-6xl md:text-7xl font-black text-white mb-4 uppercase">
-            ALL PRODUCTS
+            {t('allProducts')}
           </h1>
           <p className="text-xl text-white">
             {selectedSubcategory && selectedSubcategory !== 'All'
-              ? `Showing: ${selectedSubcategory}`
-              : 'Shop our complete collection'}
+              ? `${t('showing')}: ${selectedSubcategory}`
+              : t('shopOurCompleteCollection')}
           </p>
         </div>
       </section>
@@ -96,7 +98,7 @@ function AllProductsContent() {
           {/* Sidebar - Categories */}
           <aside className="lg:w-64 flex-shrink-0">
             <div className="bg-white rounded-lg shadow-lg p-6 sticky top-24">
-              <h2 className="text-2xl font-black text-gray-900 mb-6 uppercase">Categories</h2>
+              <h2 className="text-2xl font-black text-gray-900 mb-6 uppercase">{t('categories')}</h2>
               
               <button
                 onClick={() => {
@@ -109,7 +111,7 @@ function AllProductsContent() {
                     : 'text-gray-700 hover:bg-pink-50'
                 }`}
               >
-                All Products
+                {t('allProducts')}
               </button>
 
               {categories.map((category) => (
@@ -150,14 +152,14 @@ function AllProductsContent() {
           <div className="flex-1">
             <div className="flex justify-between items-center mb-6">
               <p className="text-gray-600">
-                Showing {filteredProducts.length} products
+                {t('showing')} {filteredProducts.length} {t('products')}
               </p>
               <select className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700">
-                <option>Sort by: Featured</option>
-                <option>Price: Low to High</option>
-                <option>Price: High to Low</option>
-                <option>Best Selling</option>
-                <option>Newest</option>
+                <option>{t('sortByFeatured')}</option>
+                <option>{t('priceLowToHigh')}</option>
+                <option>{t('priceHighToLow')}</option>
+                <option>{t('bestSelling')}</option>
+                <option>{t('newest')}</option>
               </select>
             </div>
 
@@ -198,7 +200,7 @@ function AllProductsContent() {
                     <button 
                       onClick={() => {
                         if (!isAuthenticated) {
-                          if (confirm('You need to sign in to add items to cart. Go to login page?')) {
+                          if (confirm(t('needSignIn'))) {
                             router.push('/login');
                           }
                           return;
@@ -209,11 +211,11 @@ function AllProductsContent() {
                           price: product.price,
                           category: product.category,
                         });
-                        alert(`${product.name} added to cart!`);
+                        alert(`${product.name} ${t('addedToCart')}`);
                       }}
                       className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-full uppercase text-sm transition-all transform hover:scale-105"
                     >
-                      ADD TO CART
+                      {t('addToCart')}
                     </button>
                   </div>
                 </div>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '@/app/context/CartContext';
 import { useAuth } from '@/app/context/AuthContext';
+import { useLanguage } from '@/app/context/LanguageContext';
 
 interface Product {
   id: number;
@@ -89,10 +90,11 @@ export function ProductCarousel() {
   const [selectedColors, setSelectedColors] = useState<{ [key: number]: number }>({});
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const { t } = useLanguage();
 
   const handleAddToCart = (product: Product) => {
     if (!isAuthenticated) {
-      if (confirm('You need to sign in to add items to cart. Go to login page?')) {
+      if (confirm(t('needSignIn'))) {
         router.push('/login');
       }
       return;
@@ -106,7 +108,7 @@ export function ProductCarousel() {
       color: product.colors[colorIndex],
       category: 'Makeup',
     });
-    alert(`${product.name} added to cart!`);
+    alert(`${product.name} ${t('addedToCart')}`);
   };
 
   const handlePrevious = () => {
@@ -129,7 +131,7 @@ export function ProductCarousel() {
     <section id="best-sellers" className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl md:text-5xl font-black text-pink-500 text-center mb-12 uppercase">
-          BEST SELLERS
+          {t('bestSellers')}
         </h2>
 
         <div className="relative">
@@ -223,7 +225,7 @@ export function ProductCarousel() {
                     onClick={() => handleAddToCart(product)}
                     className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-full uppercase text-sm transition-all transform hover:scale-105"
                   >
-                    ADD TO CART
+                    {t('addToCart')}
                   </button>
                 </div>
               </div>
