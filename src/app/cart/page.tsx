@@ -13,6 +13,10 @@ export default function CartPage() {
   const { isAuthenticated, user } = useAuth();
   const [showCheckout, setShowCheckout] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [voucherCode, setVoucherCode] = useState('');
+  const [appliedVoucher, setAppliedVoucher] = useState<any>(null);
+  const [voucherError, setVoucherError] = useState('');
+  const [isApplyingVoucher, setIsApplyingVoucher] = useState(false);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -60,7 +64,69 @@ export default function CartPage() {
 
   const subtotal = getCartTotal();
   const shipping = subtotal > 100 ? 0 : 10;
-  const total = subtotal + shipping;
+  
+  // Calculate discount
+  let discount = 0;
+  if (appliedVoucher) {
+    if (appliedVoucher.discount_type === 'percentage') {
+      discount = subtotal * (appliedVoucher.discount_value / 100);
+      // Apply max discount if specified
+      if (appliedVoucher.max_discount && discount > appliedVoucher.max_discount) {
+        discount = appliedVoucher.max_discount;
+      }
+    } else if (appliedVoucher.discount_type === 'fixed') {
+      discount = appliedVoucher.discount_value;
+    }
+    // Ensure discount doesn't exceed subtotal
+    if (discount > subtotal) {
+      discount = subtotal;
+    }
+  }
+  
+  const total = subtotal - discount + shipping;
+
+  // Apply voucher function
+  const applyVoucher = async () => {
+    if (!voucherCode.trim()) {
+      setVoucherError('Please enter a voucher code');
+      return;
+    }
+
+    setIsApplyingVoucher(true);
+    setVoucherError('');
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/vouchers/validate/${voucherCode}`);
+      const data = await response.json();
+
+      if (data.success) {
+        // Check minimum order requirement
+        if (data.voucher.min_order_amount && subtotal < data.voucher.min_order_amount) {
+          setVoucherError(`Minimum order amount of $${data.voucher.min_order_amount} required`);
+          setIsApplyingVoucher(false);
+          return;
+        }
+
+        setAppliedVoucher(data.voucher);
+        setVoucherError('');
+      } else {
+        setVoucherError(data.message || 'Invalid voucher code');
+        setAppliedVoucher(null);
+      }
+    } catch (error) {
+      setVoucherError('Failed to apply voucher. Please try again.');
+      setAppliedVoucher(null);
+    }
+
+    setIsApplyingVoucher(false);
+  };
+
+  // Remove voucher function
+  const removeVoucher = () => {
+    setAppliedVoucher(null);
+    setVoucherCode('');
+    setVoucherError('');
+  };
 
   if (cart.length === 0 && !showCheckout) {
     return (
@@ -85,7 +151,7 @@ export default function CartPage() {
   }
 
   if (showCheckout) {
-    return <CheckoutForm total={total} onBack={() => setShowCheckout(false)} />;
+    return <CheckoutForm total={total} discount={discount} appliedVoucher={appliedVoucher} onBack={() => setShowCheckout(false)} />;
   }
 
   return (
@@ -200,11 +266,68 @@ export default function CartPage() {
                 Order Summary
               </h2>
 
+              {/* Voucher Input */}
+              <div className="mb-6">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Voucher Code
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={voucherCode}
+                    onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+                    placeholder="Enter code"
+                    disabled={!!appliedVoucher}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  />
+                  {appliedVoucher ? (
+                    <button
+                      onClick={removeVoucher}
+                      className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg transition-colors"
+                    >
+                      Remove
+                    </button>
+                  ) : (
+                    <button
+                      onClick={applyVoucher}
+                      disabled={isApplyingVoucher}
+                      className="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      {isApplyingVoucher ? '...' : 'Apply'}
+                    </button>
+                  )}
+                </div>
+                {voucherError && (
+                  <p className="text-red-500 text-sm mt-2">{voucherError}</p>
+                )}
+                {appliedVoucher && (
+                  <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-green-700 text-sm font-bold flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      Voucher Applied: {appliedVoucher.code}
+                    </p>
+                    <p className="text-green-600 text-xs mt-1">
+                      {appliedVoucher.discount_type === 'percentage' 
+                        ? `${appliedVoucher.discount_value}% off` 
+                        : `$${appliedVoucher.discount_value} off`}
+                    </p>
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
                   <span className="font-semibold">${subtotal.toFixed(2)}</span>
                 </div>
+                {appliedVoucher && discount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Discount ({appliedVoucher.code})</span>
+                    <span className="font-semibold">-${discount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-gray-600">
                   <span>Shipping</span>
                   <span className="font-semibold">
@@ -260,8 +383,8 @@ export default function CartPage() {
   );
 }
 
-function CheckoutForm({ total, onBack }: { total: number; onBack: () => void }) {
-  const { clearCart } = useCart();
+function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: number; discount: number; appliedVoucher: any; onBack: () => void }) {
+  const { clearCart, cart } = useCart();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
@@ -279,12 +402,56 @@ function CheckoutForm({ total, onBack }: { total: number; onBack: () => void }) 
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate order processing
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setOrderPlaced(true);
-      clearCart();
-    }, 2000);
+    try {
+      // Create order object
+      const orderData = {
+        customer_name: formData.fullName,
+        customer_email: formData.email,
+        customer_phone: formData.phone,
+        shipping_address: `${formData.address}, ${formData.city}, ${formData.postalCode}`,
+        items: cart.map(item => ({
+          product_id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        total_amount: total,
+        voucher_code: appliedVoucher?.code || null,
+        discount_amount: discount || 0,
+        payment_method: 'cash_on_delivery',
+        notes: formData.notes,
+      };
+
+      // Submit order to backend
+      const response = await fetch('http://localhost:5000/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // If voucher was used, increment usage count
+        if (appliedVoucher) {
+          await fetch(`http://localhost:5000/api/vouchers/apply/${appliedVoucher.code}`, {
+            method: 'POST',
+          });
+        }
+
+        setOrderPlaced(true);
+        clearCart();
+      } else {
+        alert('Failed to place order. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error placing order:', error);
+      alert('Failed to place order. Please try again.');
+    }
+
+    setIsSubmitting(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -311,6 +478,11 @@ function CheckoutForm({ total, onBack }: { total: number; onBack: () => void }) 
             <p className="text-gray-600 mb-8">
               Order Total: <span className="font-bold text-pink-500">${total.toFixed(2)}</span>
             </p>
+            {discount > 0 && (
+              <p className="text-sm text-green-600 mb-4">
+                You saved ${discount.toFixed(2)} with voucher code: <span className="font-bold">{appliedVoucher?.code}</span>
+              </p>
+            )}
             <p className="text-sm text-gray-500 mb-8">
               Payment Method: <span className="font-semibold">Cash on Delivery</span>
             </p>
@@ -469,10 +641,20 @@ function CheckoutForm({ total, onBack }: { total: number; onBack: () => void }) 
                 <h3 className="text-xl font-black text-gray-900 mb-4">Order Summary</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between text-gray-700">
-                    <span>Order Total:</span>
-                    <span className="font-bold">${total.toFixed(2)}</span>
+                    <span>Subtotal:</span>
+                    <span className="font-bold">${(total - (total - discount)).toFixed(2)}</span>
                   </div>
+                  {discount > 0 && appliedVoucher && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Discount ({appliedVoucher.code}):</span>
+                      <span className="font-bold">-${discount.toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-gray-700 pt-2 border-t border-pink-200">
+                    <span className="font-bold">Order Total:</span>
+                    <span className="font-bold text-pink-500">${total.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-700">
                     <span className="font-bold">Payment Method:</span>
                     <span className="font-bold text-pink-500">Cash on Delivery</span>
                   </div>

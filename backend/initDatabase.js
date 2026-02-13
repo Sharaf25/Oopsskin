@@ -4,7 +4,9 @@ require('dotenv').config();
 async function initDatabase() {
   try {
     // Connect without database to create it
-    const connection = await mysql.createConnection({
+    co    console.log('\n🎉 Database initialization completed successfully!');
+    console.log('📊 Tables created: products, orders, users, vouchers');
+    console.log('📦 Sample data inserted: 20 products, 5 vouchers'); connection = await mysql.createConnection({
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
@@ -90,6 +92,28 @@ async function initDatabase() {
     `);
     console.log('✅ Users table created');
 
+    // Create vouchers table
+    console.log('📦 Creating vouchers table...');
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS vouchers (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        code VARCHAR(50) UNIQUE NOT NULL,
+        description VARCHAR(255),
+        description_ar VARCHAR(255),
+        discount_type ENUM('percentage', 'fixed') NOT NULL,
+        discount_value DECIMAL(10, 2) NOT NULL,
+        minimum_purchase DECIMAL(10, 2),
+        maximum_discount DECIMAL(10, 2),
+        usage_limit INT,
+        usage_count INT DEFAULT 0,
+        expiry_date DATE,
+        status ENUM('active', 'inactive') DEFAULT 'active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('✅ Vouchers table created');
+
     // Insert sample products
     console.log('📦 Inserting sample products...');
     const sampleProducts = [
@@ -124,9 +148,28 @@ async function initDatabase() {
     }
     console.log('✅ Sample products inserted');
 
+    // Insert sample vouchers
+    console.log('📦 Inserting sample vouchers...');
+    const sampleVouchers = [
+      ['WELCOME10', '10% off for new customers', 'خصم 10% للعملاء الجدد', 'percentage', 10.00, null, null, null, null, 'active'],
+      ['SUMMER20', 'Summer sale - 20% off', 'تخفيضات الصيف - خصم 20%', 'percentage', 20.00, 50.00, 50.00, 100, null, 'active'],
+      ['SAVE5', '$5 off your order', 'خصم 5 دولار على طلبك', 'fixed', 5.00, 25.00, null, null, null, 'active'],
+      ['MAKEUP15', '15% off on makeup products', 'خصم 15% على منتجات المكياج', 'percentage', 15.00, 30.00, 30.00, 50, null, 'active'],
+      ['FREESHIP', 'Free shipping on orders over $50', 'شحن مجاني للطلبات أكثر من 50 دولار', 'fixed', 0.00, 50.00, null, null, null, 'active']
+    ];
+
+    for (const voucher of sampleVouchers) {
+      await connection.query(
+        `INSERT INTO vouchers (code, description, description_ar, discount_type, discount_value, minimum_purchase, maximum_discount, usage_limit, expiry_date, status) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        voucher
+      );
+    }
+    console.log('✅ Sample vouchers inserted');
+
     console.log('\n🎉 Database initialization completed successfully!');
-    console.log('📊 Tables created: products, orders, users');
-    console.log('📦 Sample data inserted: 20 products');
+    console.log('📊 Tables created: products, orders, users, vouchers');
+    console.log('📦 Sample data inserted: 20 products, 5 vouchers');
     
     await connection.end();
     process.exit(0);

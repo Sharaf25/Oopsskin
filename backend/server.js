@@ -6,6 +6,8 @@ require('dotenv').config();
 const { testConnection } = require('./config/database');
 const productsRoutes = require('./routes/products');
 const ordersRoutes = require('./routes/orders');
+const vouchersRoutes = require('./routes/vouchers');
+const vouchersRoutes = require('./routes/vouchers');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -32,7 +34,8 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     endpoints: {
       products: '/api/products',
-      orders: '/api/orders'
+      orders: '/api/orders',
+      vouchers: '/api/vouchers'
     }
   });
 });
@@ -40,6 +43,8 @@ app.get('/', (req, res) => {
 // API Routes
 app.use('/api/products', productsRoutes);
 app.use('/api/orders', ordersRoutes);
+app.use('/api/vouchers', vouchersRoutes);
+app.use('/api/vouchers', vouchersRoutes);
 
 // 404 Handler
 app.use((req, res) => {
@@ -93,6 +98,16 @@ async function startServer() {
     console.log(`   PUT    /api/orders/:id        - Update order`);
     console.log(`   DELETE /api/orders/:id        - Delete order`);
     console.log(`   GET    /api/orders/stats/summary - Get order statistics`);
+    console.log('');
+    console.log(`   GET    /api/vouchers          - Get all vouchers`);
+    console.log(`   GET    /api/vouchers/:id      - Get voucher by ID`);
+    console.log(`   POST   /api/vouchers/validate - Validate voucher code`);
+    console.log(`   POST   /api/vouchers/apply    - Apply voucher`);
+    console.log(`   POST   /api/vouchers          - Create voucher`);
+    console.log(`   PUT    /api/vouchers/:id      - Update voucher`);
+    console.log(`   PUT    /api/vouchers/:id/toggle - Toggle voucher status`);
+    console.log(`   DELETE /api/vouchers/:id      - Delete voucher`);
+    console.log(`   GET    /api/vouchers/stats/summary - Get voucher statistics`);
     console.log('='.repeat(50) + '\n');
   });
 }
