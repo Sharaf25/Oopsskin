@@ -4,9 +4,7 @@ require('dotenv').config();
 async function initDatabase() {
   try {
     // Connect without database to create it
-    co    console.log('\n🎉 Database initialization completed successfully!');
-    console.log('📊 Tables created: products, orders, users, vouchers');
-    console.log('📦 Sample data inserted: 20 products, 5 vouchers'); connection = await mysql.createConnection({
+    const connection = await mysql.createConnection({
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
