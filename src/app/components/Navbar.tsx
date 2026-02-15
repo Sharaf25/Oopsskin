@@ -157,21 +157,26 @@ export function Navbar() {
                 </button>
                 
                 {isUserMenuOpen && (
-                  <div className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-2xl p-4 w-64 z-50">
-                    <div className="border-b border-gray-200 pb-3 mb-3">
-                      <p className="font-bold text-gray-900">{user?.fullName}</p>
-                      <p className="text-sm text-gray-600">{user?.email}</p>
+                  <div className="absolute top-full right-0 pt-0 z-50">
+                    {/* Invisible bridge to prevent gap - keeps menu open while moving mouse */}
+                    <div className="h-2 w-full" />
+                    
+                    <div className="bg-white rounded-lg shadow-2xl p-4 w-64">
+                      <div className="border-b border-gray-200 pb-3 mb-3">
+                        <p className="font-bold text-gray-900">{user?.name}</p>
+                        <p className="text-sm text-gray-600">{user?.email}</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          logout();
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="flex items-center gap-2 text-red-500 hover:text-red-600 hover:bg-red-50 font-medium w-full py-2 px-2 rounded transition-colors"
+                      >
+                        <LogOut size={18} />
+                        {t('logout')}
+                      </button>
                     </div>
-                    <button
-                      onClick={() => {
-                        logout();
-                        setIsUserMenuOpen(false);
-                      }}
-                      className="flex items-center gap-2 text-red-500 hover:text-red-600 font-medium w-full"
-                    >
-                      <LogOut size={18} />
-                      {t('logout')}
-                    </button>
                   </div>
                 )}
               </div>

@@ -1,19 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/app/context/AuthContext';
-import { Mail, Lock, User, Phone, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Phone, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, isAuthenticated } = useAuth();
+  const { register, isAuthenticated, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
-    fullName: '',
+    name: '',
     email: '',
     phone: '',
     password: '',
@@ -21,40 +22,57 @@ export default function RegisterPage() {
   });
 
   // Redirect if already logged in
-  if (isAuthenticated) {
-    router.push('/');
-    return null;
+  useEffect(() => {
+    if (isAuthenticated && !loading) {
+      router.push('/');
+    }
+  }, [isAuthenticated, loading, router]);
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <main className="min-h-screen pt-16 bg-gradient-to-br from-pink-50 via-purple-50 to-pink-100">
+        <div className="container mx-auto px-4 py-16 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-pink-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      setError('Passwords do not match!');
       return;
     }
 
     // Validate password length
     if (formData.password.length < 6) {
-      alert('Password must be at least 6 characters!');
+      setError('Password must be at least 6 characters!');
       return;
     }
 
     setIsLoading(true);
 
-    const success = await register({
+    const result = await register({
       email: formData.email,
       password: formData.password,
-      fullName: formData.fullName,
+      name: formData.name,
       phone: formData.phone,
     });
 
     setIsLoading(false);
 
-    if (success) {
-      alert('Registration successful! Welcome to oopsskin!');
+    if (result.success) {
       router.push('/');
+    } else {
+      setError(result.error || 'Registration failed. Please try again.');
     }
   };
 
@@ -77,6 +95,14 @@ export default function RegisterPage() {
 
           {/* Register Form */}
           <div className="bg-white rounded-2xl shadow-2xl p-8">
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                <AlertCircle size={20} />
+                <p className="text-sm">{error}</p>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit}>
               {/* Full Name */}
               <div className="mb-4">
@@ -87,9 +113,9 @@ export default function RegisterPage() {
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                   <input
                     type="text"
-                    name="fullName"
+                    name="name"
                     required
-                    value={formData.fullName}
+                    value={formData.name}
                     onChange={handleChange}
                     className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
                     placeholder="John Doe"

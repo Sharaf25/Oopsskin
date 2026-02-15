@@ -389,7 +389,7 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: user?.fullName || '',
+    fullName: user?.name || '',
     email: user?.email || '',
     phone: user?.phone || '',
     address: user?.address || '',

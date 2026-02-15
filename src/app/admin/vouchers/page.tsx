@@ -33,7 +33,7 @@ export default function VouchersPage() {
     expired_vouchers: 0
   });
 
-  const API_URL = 'http://localhost:5000/api';
+  const API_URL = 'http://localhost:6000/api';
 
   // Fetch vouchers
   const fetchVouchers = async () => {
@@ -370,7 +370,7 @@ function VoucherModal({
   });
 
   const [loading, setLoading] = useState(false);
-  const API_URL = 'http://localhost:5000/api';
+  const API_URL = 'http://localhost:6000/api';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -7,7 +7,14 @@ const sequelize = require("./config/db");
 const cleanExpiredTokens = require("./utils/cleanExpiredTokens"); // <--- new
 const User = require("./models/User");
 const cors = require("cors");
-app.use(cors());
+
+// Configure CORS to allow requests from frontend
+app.use(cors({
+  origin: "http://localhost:3000", // Allow frontend origin
+  credentials: true, // Allow cookies and authorization headers
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 // Sync tables
 sequelize
   .sync() // creates tables if not exists
@@ -33,6 +40,6 @@ app.get("/", (req, res) => {
 });
 
 // Start server
-app.listen(6000, () => {
-  console.log("Server is running on port 6000");
+app.listen(5000, () => {
+  console.log("Server is running on port 5000");
 });

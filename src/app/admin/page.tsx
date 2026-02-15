@@ -44,19 +44,19 @@ export default function AdminDashboard() {
       setLoading(true);
       
       // Fetch order statistics
-      const statsRes = await fetch('http://localhost:5000/api/orders/stats/summary');
+      const statsRes = await fetch('http://localhost:6000/api/orders/stats/summary');
       const statsData = await statsRes.json();
       
       // Fetch recent orders
-      const ordersRes = await fetch('http://localhost:5000/api/orders?limit=5');
+      const ordersRes = await fetch('http://localhost:6000/api/orders?limit=5');
       const ordersData = await ordersRes.json();
       
       // Fetch products count
-      const productsRes = await fetch('http://localhost:5000/api/products');
+      const productsRes = await fetch('http://localhost:6000/api/products');
       const productsData = await productsRes.json();
 
       // Fetch vouchers statistics
-      const vouchersRes = await fetch('http://localhost:5000/api/vouchers/stats/summary');
+      const vouchersRes = await fetch('http://localhost:6000/api/vouchers/stats/summary');
       const vouchersData = await vouchersRes.json();
 
       if (statsData.success) {

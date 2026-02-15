@@ -1,37 +1,56 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/app/context/AuthContext';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
 
   // Redirect if already logged in
-  if (isAuthenticated) {
-    router.push('/');
-    return null;
+  useEffect(() => {
+    if (isAuthenticated && !loading) {
+      router.push('/');
+    }
+  }, [isAuthenticated, loading, router]);
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <main className="min-h-screen pt-16 bg-gradient-to-br from-pink-50 via-purple-50 to-pink-100">
+        <div className="container mx-auto px-4 py-16 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-pink-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
 
-    const success = await login(formData.email, formData.password);
+    const result = await login(formData.email, formData.password);
     
     setIsLoading(false);
 
-    if (success) {
+    if (result.success) {
       router.push('/');
+    } else {
+      setError(result.error || 'Login failed. Please try again.');
     }
   };
 
@@ -54,6 +73,14 @@ export default function LoginPage() {
 
           {/* Login Form */}
           <div className="bg-white rounded-2xl shadow-2xl p-8">
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                <AlertCircle size={20} />
+                <p className="text-sm">{error}</p>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit}>
               {/* Email */}
               <div className="mb-6">

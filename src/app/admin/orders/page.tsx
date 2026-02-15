@@ -36,7 +36,7 @@ export default function OrdersPage() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/orders');
+      const response = await fetch('http://localhost:6000/api/orders');
       const data = await response.json();
       
       if (data.success) {
@@ -74,7 +74,7 @@ export default function OrdersPage() {
 
   const updateOrderStatus = async (id: number, newStatus: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/orders/${id}/status`, {
+      const response = await fetch(`http://localhost:6000/api/orders/${id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
