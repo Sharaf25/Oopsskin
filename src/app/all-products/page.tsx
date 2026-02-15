@@ -5,12 +5,15 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useCart } from '@/app/context/CartContext';
 import { useAuth } from '@/app/context/AuthContext';
 import { useLanguage } from '@/app/context/LanguageContext';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 function AllProductsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12); // Products per page
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
   const { t } = useLanguage();
@@ -21,6 +24,11 @@ function AllProductsContent() {
       setSelectedSubcategory(category);
     }
   }, [searchParams]);
+
+  // Reset to page 1 when category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, selectedSubcategory]);
 
   const categories = [
     {
@@ -76,6 +84,66 @@ function AllProductsContent() {
   const filteredProducts = selectedSubcategory && selectedSubcategory !== 'All'
     ? allProducts.filter((p) => p.category === selectedSubcategory)
     : allProducts;
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
+  // Pagination handlers
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      goToPage(currentPage - 1);
+    }
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      goToPage(currentPage + 1);
+    }
+  };
+
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push('...');
+        pages.push(currentPage - 1);
+        pages.push(currentPage);
+        pages.push(currentPage + 1);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
 
   return (
     <main className="min-h-screen pt-16">
@@ -152,7 +220,7 @@ function AllProductsContent() {
           <div className="flex-1">
             <div className="flex justify-between items-center mb-6">
               <p className="text-gray-600">
-                {t('showing')} {filteredProducts.length} {t('products')}
+                {t('showing')} {startIndex + 1}-{Math.min(endIndex, filteredProducts.length)} {t('of')} {filteredProducts.length} {t('products')}
               </p>
               <select className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700">
                 <option>{t('sortByFeatured')}</option>
@@ -164,7 +232,7 @@ function AllProductsContent() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredProducts.map((product) => (
+              {currentProducts.map((product) => (
                 <div
                   key={product.id}
                   className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow"
@@ -221,6 +289,72 @@ function AllProductsContent() {
                 </div>
               ))}
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+                {/* Page Info */}
+                <div className="text-sm text-gray-600">
+                  {t('page')} {currentPage} {t('of')} {totalPages}
+                </div>
+
+                {/* Pagination Buttons */}
+                <div className="flex items-center gap-2">
+                  {/* Previous Button */}
+                  <button
+                    onClick={goToPreviousPage}
+                    disabled={currentPage === 1}
+                    className={`flex items-center gap-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                      currentPage === 1
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-pink-50 hover:border-pink-300'
+                    }`}
+                  >
+                    <ChevronLeft size={18} />
+                    <span className="hidden sm:inline">{t('previous')}</span>
+                  </button>
+
+                  {/* Page Numbers */}
+                  <div className="flex items-center gap-1">
+                    {getPageNumbers().map((page, index) => (
+                      <button
+                        key={index}
+                        onClick={() => typeof page === 'number' && goToPage(page)}
+                        disabled={page === '...'}
+                        className={`min-w-[40px] h-10 flex items-center justify-center rounded-lg font-bold transition-all ${
+                          page === currentPage
+                            ? 'bg-pink-500 text-white'
+                            : page === '...'
+                            ? 'bg-transparent text-gray-400 cursor-default'
+                            : 'bg-white border border-gray-300 text-gray-700 hover:bg-pink-50 hover:border-pink-300'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages}
+                    className={`flex items-center gap-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                      currentPage === totalPages
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-pink-50 hover:border-pink-300'
+                    }`}
+                  >
+                    <span className="hidden sm:inline">{t('next')}</span>
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+
+                {/* Items Per Page Info */}
+                <div className="text-sm text-gray-600">
+                  {itemsPerPage} {t('itemsPerPage')}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -152,9 +152,12 @@ export function Navbar() {
                 onMouseEnter={() => setIsUserMenuOpen(true)}
                 onMouseLeave={() => setIsUserMenuOpen(false)}
               >
-                <button className="text-white hover:text-pink-200 transition-colors flex items-center gap-1">
+                <Link 
+                  href="/profile"
+                  className="text-white hover:text-pink-200 transition-colors flex items-center gap-1"
+                >
                   <User size={20} />
-                </button>
+                </Link>
                 
                 {isUserMenuOpen && (
                   <div className="absolute top-full right-0 pt-0 z-50">
@@ -166,16 +169,28 @@ export function Navbar() {
                         <p className="font-bold text-gray-900">{user?.name}</p>
                         <p className="text-sm text-gray-600">{user?.email}</p>
                       </div>
-                      <button
-                        onClick={() => {
-                          logout();
-                          setIsUserMenuOpen(false);
-                        }}
-                        className="flex items-center gap-2 text-red-500 hover:text-red-600 hover:bg-red-50 font-medium w-full py-2 px-2 rounded transition-colors"
-                      >
-                        <LogOut size={18} />
-                        {t('logout')}
-                      </button>
+                      
+                      <div className="space-y-1">
+                        <Link
+                          href="/profile"
+                          className="flex items-center gap-2 text-gray-700 hover:text-pink-500 hover:bg-pink-50 font-medium w-full py-2 px-2 rounded transition-colors"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          <User size={18} />
+                          My Profile
+                        </Link>
+                        
+                        <button
+                          onClick={() => {
+                            logout();
+                            setIsUserMenuOpen(false);
+                          }}
+                          className="flex items-center gap-2 text-red-500 hover:text-red-600 hover:bg-red-50 font-medium w-full py-2 px-2 rounded transition-colors"
+                        >
+                          <LogOut size={18} />
+                          {t('logout')}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}

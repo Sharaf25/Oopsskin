@@ -2,14 +2,10 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-// ==========================================
-// API CONFIGURATION - From Postman Screenshots
-// ==========================================
+
 const AUTH_API_URL = 'http://localhost:5000/api/auth';
 
-// ==========================================
-// TYPE DEFINITIONS
-// ==========================================
+
 export interface User {
   id: number;
   email: string;
@@ -119,9 +115,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // ==========================================
+
   // REGISTER NEW USER
-  // ==========================================
+
   const register = async (userData: RegisterData): Promise<{ success: boolean; error?: string }> => {
     try {
       // Only run in browser
@@ -168,9 +164,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // ==========================================
+
   // LOGIN USER
-  // ==========================================
+ 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       // Only run in browser
@@ -235,9 +231,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // ==========================================
+
   // LOGOUT USER
-  // ==========================================
+
   const logout = () => {
     // Only run in browser
     if (typeof window === 'undefined') return;
@@ -262,9 +258,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// ==========================================
+
 // USE AUTH HOOK
-// ==========================================
+
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

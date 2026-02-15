@@ -59,6 +59,7 @@ const translations = {
     
     // Products Page
     showing: 'Showing',
+    of: 'of',
     products: 'products',
     shopOurCompleteCollection: 'Shop our complete collection',
     sortByFeatured: 'Sort by: Featured',
@@ -68,6 +69,10 @@ const translations = {
     newest: 'Newest',
     addToCart: 'ADD TO CART',
     categories: 'Categories',
+    page: 'Page',
+    previous: 'Previous',
+    next: 'Next',
+    itemsPerPage: 'items per page',
     
     // Cart
     cart: 'Cart',
@@ -181,6 +186,7 @@ const translations = {
     
     // Products Page
     showing: 'عرض',
+    of: 'من',
     products: 'منتجات',
     shopOurCompleteCollection: 'تسوق مجموعتنا الكاملة',
     sortByFeatured: 'الترتيب: مميز',
@@ -190,6 +196,10 @@ const translations = {
     newest: 'الأحدث',
     addToCart: 'أضف للسلة',
     categories: 'الفئات',
+    page: 'صفحة',
+    previous: 'السابق',
+    next: 'التالي',
+    itemsPerPage: 'عناصر في الصفحة',
     
     // Cart
     cart: 'السلة',
