@@ -2,7 +2,7 @@
 
 ## What Was Fixed
 
-### 1. Backend CORS Configuration (backend/index.js)
+### Backend CORS Configuration (backend/index.js)
 Updated the CORS middleware to explicitly allow requests from the Next.js frontend:
 
 ```javascript
@@ -14,11 +14,11 @@ app.use(cors({
 }));
 ```
 
-### 2. Port Corrections
-Updated all API calls from port 5000 to port 6000 (the actual backend port):
+### Port Configuration
+All API calls use port 5000 (the actual backend port):
 
-**Files Updated:**
-- ✅ `src/app/context/AuthContext.tsx` (already correct)
+**Files Verified:**
+- ✅ `src/app/context/AuthContext.tsx`
 - ✅ `src/app/cart/page.tsx`
 - ✅ `src/app/admin/page.tsx`
 - ✅ `src/app/admin/vouchers/page.tsx`
@@ -26,15 +26,20 @@ Updated all API calls from port 5000 to port 6000 (the actual backend port):
 - ✅ `src/app/admin/orders/page.tsx`
 
 ## Backend Status
-✅ Running on port 6000
+✅ Running on port 5000
 ✅ CORS configured to accept requests from `http://localhost:3000`
 ✅ Database connected
 ✅ All tables synced
 
 ## Testing Authentication
 
-### 1. Start the Frontend
+### 1. Start the Servers
 ```powershell
+# Terminal 1 - Backend
+cd backend
+npm start
+
+# Terminal 2 - Frontend
 npm run dev
 ```
 
@@ -71,28 +76,33 @@ npm run dev
 
 ### If you still see CORS errors:
 1. Make sure both servers are running:
-   - Backend: `cd backend && npm start` (port 6000)
+   - Backend: `cd backend && npm start` (port 5000)
    - Frontend: `npm run dev` (port 3000)
 
 2. Clear browser cache and cookies
 
 3. Check browser console for specific error messages
 
-4. Verify in Network tab that requests are going to `http://localhost:6000`
+4. Verify in Network tab that requests are going to `http://localhost:5000`
 
 ### If authentication still doesn't work:
-1. Check localStorage for JWT token: `localStorage.getItem('token')`
+1. Check localStorage for JWT token: `localStorage.getItem('authToken')`
 2. Check Network tab to see API responses
 3. Verify user data in MySQL database
+4. Check backend console for any errors
 
-## Next Steps
-1. ✅ Backend CORS configured
-2. ✅ All ports corrected to 6000
-3. ✅ Backend server running
-4. 🔄 Start frontend server
-5. 🔄 Test registration flow
-6. 🔄 Test login flow
-7. 🔄 Test checkout flow
+## Production Deployment
+
+For production, update the CORS origin in `backend/index.js`:
+
+```javascript
+app.use(cors({
+  origin: "https://yourdomain.com", // Your production frontend URL
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+```
 
 ## API Endpoints Confirmed
 - POST `/api/auth/register` - Register new user
@@ -101,3 +111,8 @@ npm run dev
 - POST `/api/orders` - Create order (requires auth)
 - GET `/api/vouchers/validate/:code` - Validate voucher
 - POST `/api/vouchers/apply/:code` - Apply voucher
+
+---
+
+**Status**: ✅ CORS Issue Resolved
+**Last Updated**: February 2026

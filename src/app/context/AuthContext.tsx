@@ -16,6 +16,9 @@ export interface User {
   name: string;
   phone: string;
   role?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
 }
 
 interface AuthContextType {
@@ -36,9 +39,8 @@ interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// ==========================================
 // AUTH PROVIDER COMPONENT
-// ==========================================
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,9 +58,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [isMounted]);
 
-  // ==========================================
+  
   // CHECK AUTHENTICATION STATUS
-  // ==========================================
+
   const checkAuth = async () => {
     try {
       // Only run in browser
@@ -89,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Authentication valid:', data);
+        console.log('Authentication valid:', data);
         
         setUser({
           id: data.id,
@@ -99,14 +101,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: data.role || 'user',
         });
       } else {
-        console.log('❌ Authentication failed, clearing token');
+        console.log('Authentication failed, clearing token');
         // Token invalid or expired, clear it
         localStorage.removeItem('authToken');
         localStorage.removeItem('refreshToken');
         setUser(null);
       }
     } catch (error) {
-      console.error('❌ Auth check error:', error);
+      console.error('Auth check error:', error);
       if (typeof window !== 'undefined') {
         localStorage.removeItem('authToken');
         localStorage.removeItem('refreshToken');
@@ -148,7 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('📝 Register response:', { status: response.status, data });
 
       if (response.ok) {
-        console.log('✅ Registration successful, auto-logging in...');
+        console.log('Registration successful, auto-logging in...');
         // Registration successful, now login automatically
         return await login(userData.email, userData.password);
       } else {
@@ -158,7 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
       }
     } catch (error) {
-      console.error('❌ Registration error:', error);
+      console.error('Registration error:', error);
       return {
         success: false,
         error: 'Network error. Please check your connection and ensure the backend server is running on port 5000.',
@@ -176,8 +178,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: 'Client-side only' };
       }
 
-      console.log('🔐 Attempting login:', { email, password: '***' });
-      console.log('🔐 API URL:', `${AUTH_API_URL}/login`);
+      console.log('Attempting login:', { email, password: '***' });
+      console.log('API URL:', `${AUTH_API_URL}/login`);
 
       const response = await fetch(`${AUTH_API_URL}/login`, {
         method: 'POST',
@@ -189,13 +191,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         mode: 'cors',
       });
 
-      console.log('🔐 Login response status:', response.status);
+      console.log('Login response status:', response.status);
 
       const data = await response.json();
-      console.log('🔐 Login response data:', data);
+      console.log('Login response data:', data);
 
       if (response.ok && data.token) {
-        console.log('✅ Login successful');
+        console.log('Login successful');
         
         // Store tokens in localStorage
         localStorage.setItem('authToken', data.token);
@@ -221,8 +223,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
       }
     } catch (error) {
-      console.error('❌ Login error:', error);
-      console.error('❌ Error details:', {
+      console.error('Login error:', error);
+      console.error('Error details:', {
         type: error instanceof Error ? error.constructor.name : typeof error,
         message: error instanceof Error ? error.message : 'Unknown error'
       });
@@ -240,7 +242,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Only run in browser
     if (typeof window === 'undefined') return;
     
-    console.log('👋 Logging out...');
+    console.log('Logging out...');
     
     // Clear tokens and user data
     localStorage.removeItem('authToken');

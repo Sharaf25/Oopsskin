@@ -35,7 +35,7 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:6000/api/products');
+      const response = await fetch('http://localhost:5000/api/products');
       const data = await response.json();
       
       if (data.success) {
@@ -75,7 +75,7 @@ export default function ProductsPage() {
     if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
 
     try {
-      const response = await fetch(`http://localhost:6000/api/products/${id}`, {
+      const response = await fetch(`http://localhost:5000/api/products/${id}`, {
         method: 'DELETE'
       });
       
