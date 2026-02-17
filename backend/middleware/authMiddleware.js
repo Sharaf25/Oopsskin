@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const InvalidToken = require("../models/InvalidToken");
+const { InvalidToken } = require("../models");
 require("dotenv").config();
 
 const ensureAuthenticated = async (req, res, next) => {

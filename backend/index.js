@@ -1,45 +1,58 @@
 const express = require("express");
-const app = express();
 const cookieParser = require("cookie-parser");
-require("dotenv").config(); // Load environment variables
-const authRouter = require("./routes/authRoutes");
-const sequelize = require("./config/db");
-const cleanExpiredTokens = require("./utils/cleanExpiredTokens"); // <--- new
-const User = require("./models/User");
 const cors = require("cors");
+require("dotenv").config();
 
-// Configure CORS to allow requests from frontend
-app.use(cors({
-  origin: "http://localhost:3000", // Allow frontend origin
-  credentials: true, // Allow cookies and authorization headers
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
-// Sync tables
-sequelize
-  .sync() // creates tables if not exists
-  .then(() => console.log("Tables are synced"))
-  .catch((err) => console.error("Error syncing tables:", err));
+const { sequelize } = require("./models");
+const cleanExpiredTokens = require("./utils/cleanExpiredTokens");
 
-  
-// Middlewares
+// Routers
+const authRouter = require("./routes/authRoutes");
+const cartRouter = require("./routes/cartRoutes");
+const orderRouter = require("./routes/orderRoutes");
+const voucherRouter = require("./routes/voucherRoutes");
+const productRoutes = require("./routes/productRoutes");
+
+const app = express();
+
+// Middleware
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
+
+// Routes
 app.use("/api/auth", authRouter);
-app.use("/api/test", authRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/orders", orderRouter);
+app.use("/api/admin/vouchers", voucherRouter);
 
-// Run cleanup once at startup
-cleanExpiredTokens();
-
-// Run cleanup every hour (3600000 ms)
-setInterval(cleanExpiredTokens, 3600000);
+// Mount product routes under /api
+app.use("/api", productRoutes);
 
 // Default route
-app.get("/", (req, res) => {
-  res.send("Welcome to the JWT Authentication API");
+app.get("/", (req, res) => res.send("Welcome to the API"));
+
+// Sync database tables
+sequelize
+  .sync({ alter: true })
+  .then(() => console.log("✅ Tables are synced"))
+  .catch((err) => console.error("❌ Error syncing tables:", err));
+
+// Run cleanup once at startup and every hour
+cleanExpiredTokens();
+setInterval(cleanExpiredTokens, 60 * 60 * 1000);
+
+// Error handling for unmatched routes
+app.use((req, res, next) => {
+  res.status(404).json({ message: "Route not found" });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("Global error:", err);
+  res.status(500).json({ message: "Internal server error" });
 });
 
 // Start server
-app.listen(5000, () => {
-  console.log("Server is running on port 5000");
-});
+const PORT = process.env.PORT || 6000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

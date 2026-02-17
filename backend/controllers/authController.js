@@ -1,14 +1,12 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const User = require("../models/User");
-const RefreshToken = require("../models/RefreshToken");
-const InvalidToken = require("../models/InvalidToken");
+const { User, RefreshToken, InvalidToken } = require("../models");
 
 // --- Register ---
 const register = async (req, res) => {
   try {
-    const { name, email, password, phone } = req.body;
+    const { name, email, password, phone, city, street } = req.body;
     if (!name || !email || !password || !phone)
       return res.status(400).json({ message: "All fields are required" });
 
@@ -23,7 +21,9 @@ const register = async (req, res) => {
       email,
       password: hashedPassword,
       phone,
-      role: "user", // force 'user'
+      city,
+      street,
+      role: "user",
     });
 
     return res.status(201).json({ message: "User registered successfully" });
@@ -106,7 +106,7 @@ const refresh_token = async (req, res) => {
 const current = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
-      attributes: ["id", "name", "email", "phone", "role"],
+      attributes: ["id", "name", "email", "phone", "role", "city", "street"],
     });
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -116,20 +116,18 @@ const current = async (req, res) => {
   }
 };
 
-// --- Logout (Aggressive) ---
+// --- Logout ---
 const logout = async (req, res) => {
   try {
-    // Add current access token to invalid list
     const decoded = jwt.decode(req.token);
     await InvalidToken.create({
       token: req.token,
       expiresAt: new Date(decoded.exp * 1000),
     });
 
-    // Delete all refresh tokens
     await RefreshToken.destroy({ where: { userId: req.user.id } });
 
-    return res.status(200).json({ message: "Logged out successfully (aggressive)" });
+    return res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

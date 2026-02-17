@@ -1,23 +1,12 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/db");
-
-const InvalidToken = sequelize.define(
-  "InvalidToken",
-  {
-    token: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
+module.exports = (sequelize, DataTypes) => {
+  const InvalidToken = sequelize.define(
+    "InvalidToken",
+    {
+      token: { type: DataTypes.STRING, allowNull: false, unique: true },
+      expiresAt: { type: DataTypes.DATE, allowNull: false },
     },
-    expiresAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-  },
-  {
-    tableName: "invalid_tokens",
-    timestamps: true,
-  }
-);
+    { tableName: "invalid_tokens", timestamps: true }
+  );
 
-module.exports = InvalidToken;
+  return InvalidToken;
+};
