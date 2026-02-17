@@ -1,23 +1,26 @@
 const { Cart, CartItem } = require("../models");
+const { fetchProducts } = require("../controllers/productControllers"); // your fetchProducts function
 
 // --- Add item to cart ---
 exports.addToCart = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { productId, product_name, price, quantity } = req.body;
+    const { productId, quantity } = req.body;
 
-    if (!productId || !product_name || !price) {
-      return res.status(400).json({ message: "Invalid product data" });
-    }
+    if (!productId) return res.status(400).json({ message: "ProductId is required" });
+
+    // Get cached products
+    const products = await fetchProducts();
+    const product = products.find(p => p.id === productId);
+
+    if (!product) return res.status(404).json({ message: "Product not found or price = 0" });
 
     // Get or create user's cart
     let cart = await Cart.findOne({ where: { user_id: userId } });
     if (!cart) cart = await Cart.create({ user_id: userId });
 
-    // Check if item already exists in cart
-    let item = await CartItem.findOne({
-      where: { cart_id: cart.id, productId },
-    });
+    // Check if item already exists
+    let item = await CartItem.findOne({ where: { cart_id: cart.id, productId } });
 
     if (item) {
       item.quantity += quantity || 1;
@@ -26,8 +29,6 @@ exports.addToCart = async (req, res) => {
       await CartItem.create({
         cart_id: cart.id,
         productId,
-        product_name,
-        price,
         quantity: quantity || 1,
       });
     }
@@ -44,12 +45,23 @@ exports.getCart = async (req, res) => {
   try {
     const cart = await Cart.findOne({
       where: { user_id: req.user.id },
-      include: [{ model: CartItem, as: "items" }], // use alias 'items'
+      include: [{ model: CartItem, as: "items" }],
     });
 
     if (!cart) return res.json({ items: [] });
 
-    res.json(cart);
+    const products = await fetchProducts();
+
+    // Merge cart items with product data from cache
+    const itemsWithProductData = cart.items
+      .map(item => {
+        const product = products.find(p => p.id === item.productId);
+        if (!product) return null; // skip missing/price=0 products
+        return { ...item.toJSON(), product };
+      })
+      .filter(Boolean);
+
+    res.json({ items: itemsWithProductData });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error", error: error.message });

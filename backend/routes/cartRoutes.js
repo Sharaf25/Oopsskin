@@ -4,7 +4,7 @@ const { ensureAuthenticated } = require("../middleware/authMiddleware");
 
 router.post("/add", ensureAuthenticated, controller.addToCart);
 router.get("/", ensureAuthenticated, controller.getCart);
-router.put("/item/:itemId", ensureAuthenticated, controller.updateQuantity);
-router.delete("/item/:itemId", ensureAuthenticated, controller.removeItem);
+router.put("/update/:itemId", ensureAuthenticated, controller.updateQuantity);
+router.delete("/delete/:itemId", ensureAuthenticated, controller.removeItem);
 
 module.exports = router;
