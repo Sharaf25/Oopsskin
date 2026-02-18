@@ -15,8 +15,13 @@ const productRoutes = require("./routes/productRoutes");
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// Middleware - CORS Configuration
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:3001'], // Frontend URLs
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -54,5 +59,5 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 6000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
