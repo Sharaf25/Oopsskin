@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '@/app/context/CartContext';
 import { useAuth } from '@/app/context/AuthContext';
 import { useLanguage } from '@/app/context/LanguageContext';
+import Link from 'next/link';
 
 interface Product {
   id: string;
@@ -152,33 +153,39 @@ export function ProductCarousel() {
             {getVisibleProducts().map((product) => (
               <div
                 key={product.id}
-                className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+                className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group"
               >
-                {/* Product Image */}
-                <div className="relative aspect-square bg-gradient-to-br from-[#f5e6d3] to-[#e8d4ba] overflow-hidden">
-                  {/* Badge */}
-                  {product.badge && (
-                    <div className="absolute top-3 left-3 z-10">
-                      <span className="bg-gradient-to-r from-pink-500 to-pink-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase shadow-lg">
-                        {product.badge}
-                      </span>
-                    </div>
-                  )}
-                  
-                  <img 
-                    src={product.item_img} 
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://via.placeholder.com/400x400?text=Product';
-                    }}
-                  />
-                </div>
+                {/* Product Image - Clickable */}
+                <Link href={`/product/${product.id}`}>
+                  <div className="relative aspect-square bg-gradient-to-br from-[#f5e6d3] to-[#e8d4ba] overflow-hidden cursor-pointer">
+                    {/* Badge */}
+                    {product.badge && (
+                      <div className="absolute top-3 left-3 z-10">
+                        <span className="bg-gradient-to-r from-pink-500 to-pink-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase shadow-lg">
+                          {product.badge}
+                        </span>
+                      </div>
+                    )}
+                    
+                    <img 
+                      src={product.item_img} 
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://via.placeholder.com/400x400?text=Product';
+                      }}
+                    />
+                  </div>
+                </Link>
 
                 {/* Product Info */}
                 <div className="p-5">
-                  {/* Product Name (Arabic) */}
-                  <h3 className="font-bold text-base text-gray-900 mb-1 line-clamp-1">{product.name}</h3>
+                  {/* Product Name (Arabic) - Clickable */}
+                  <Link href={`/product/${product.id}`}>
+                    <h3 className="font-bold text-base text-gray-900 mb-1 line-clamp-1 hover:text-pink-500 transition-colors cursor-pointer">
+                      {product.name}
+                    </h3>
+                  </Link>
                   
                   {/* Product Description (English) */}
                   {product.description && (
