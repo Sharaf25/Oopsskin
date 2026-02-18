@@ -2,7 +2,16 @@
 
 ## ✅ Completed Changes
 
-### 1. Admin Sidebar (`src/app/admin/layout.tsx`)
+### 1. Admin Authentication & Authorization - **NEW** 🔐
+- ✅ **Role-based access control** implemented
+- ✅ Created `useAdminAuth` hook for admin verification
+- ✅ Created `AdminProtected` component for route protection
+- ✅ Only users with `role: "admin"` can access admin pages
+- ✅ Automatic redirects for unauthorized users
+- ✅ Admin user info displayed in header
+- 📄 Full documentation in `ADMIN_AUTH_GUIDE.md`
+
+### 2. Admin Sidebar (`src/app/admin/layout.tsx`)
 - ❌ **Products** link removed from sidebar
 - ✅ **Vouchers** link present
 - ✅ Clean navigation with: Dashboard, Orders, Customers, Vouchers, Settings
@@ -42,11 +51,22 @@
 
 ## Files Modified
 
-1. `src/app/admin/layout.tsx`
-   - Removed "Products" from sidebar menu
+1. **`src/app/hooks/useAdminAuth.ts`** - NEW ⭐
+   - Custom hook for admin authentication
+   - Checks user role from JWT token
+   - Handles redirects for unauthorized access
+
+2. **`src/app/components/AdminProtected.tsx`** - NEW ⭐
+   - Wrapper component for admin routes
+   - Shows loading states
+   - Protects all admin pages
+
+3. `src/app/admin/layout.tsx`
+   - Wrapped with `AdminProtected` component
+   - Shows actual logged-in admin user info
    - Removed Package icon import
 
-2. `src/app/admin/page.tsx`
+4. `src/app/admin/page.tsx`
    - Removed "Total Products" from stats
    - Removed "Add New Product" quick action
    - Removed "Product Analytics" quick action
@@ -88,6 +108,30 @@ All admin files verified with **no TypeScript or ESLint errors**:
 ---
 
 ## Next Steps
+
+### Before Testing:
+
+1. **Update Backend** - Ensure your backend returns `role` field:
+   ```javascript
+   // In authController.js login/register response:
+   res.json({
+     token: token,
+     role: user.role || 'user',  // ← Add this
+     // ...other fields
+   });
+   ```
+
+2. **Add Role to Database** (if not exists):
+   ```sql
+   ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'user';
+   ```
+
+3. **Create Admin User**:
+   ```sql
+   UPDATE users SET role = 'admin' WHERE email = 'your-admin@email.com';
+   ```
+
+### Testing:
 
 1. Start your dev server to test the changes:
    ```powershell

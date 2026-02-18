@@ -13,12 +13,15 @@ import {
   LogOut,
   Ticket
 } from 'lucide-react';
+import { AdminProtected } from '@/app/components/AdminProtected';
+import { useAuth } from '@/app/context/AuthContext';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
+  const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const pathname = usePathname();
 
@@ -38,7 +41,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <AdminProtected>
+      <div className="min-h-screen bg-gray-100">
       {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 z-40 h-screen transition-transform ${
@@ -106,11 +110,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <p className="text-sm font-semibold text-gray-900">Admin User</p>
-                <p className="text-xs text-gray-500">admin@oopsskin.com</p>
+                <p className="text-sm font-semibold text-gray-900">{user?.name || 'Admin'}</p>
+                <p className="text-xs text-gray-500">{user?.email || ''}</p>
               </div>
               <div className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center text-white font-bold">
-                A
+                {user?.name?.charAt(0).toUpperCase() || 'A'}
               </div>
             </div>
           </div>
@@ -130,5 +134,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         />
       )}
     </div>
+    </AdminProtected>
   );
 }
