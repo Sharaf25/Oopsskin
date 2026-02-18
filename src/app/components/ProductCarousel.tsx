@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '@/app/context/CartContext';
@@ -25,6 +25,7 @@ export function ProductCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAnimating, setIsAnimating] = useState(false);
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
   const { t } = useLanguage();
@@ -33,6 +34,31 @@ export function ProductCarousel() {
   useEffect(() => {
     fetchBestSellers();
   }, []);
+
+  const handlePrevious = useCallback(() => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setCurrentIndex((prev) => (prev === 0 ? products.length - 1 : prev - 1));
+    setTimeout(() => setIsAnimating(false), 600);
+  }, [isAnimating, products.length]);
+
+  const handleNext = useCallback(() => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setCurrentIndex((prev) => (prev === products.length - 1 ? 0 : prev + 1));
+    setTimeout(() => setIsAnimating(false), 600);
+  }, [isAnimating, products.length]);
+
+  // Auto-advance carousel every 4 seconds
+  useEffect(() => {
+    if (products.length === 0) return;
+
+    const timer = setInterval(() => {
+      handleNext();
+    }, 4000);
+
+    return () => clearInterval(timer);
+  }, [products.length, handleNext]);
 
   const fetchBestSellers = async () => {
     try {
@@ -89,14 +115,6 @@ export function ProductCarousel() {
     }
   };
 
-  const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev === 0 ? products.length - 1 : prev - 1));
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev === products.length - 1 ? 0 : prev + 1));
-  };
-
   const getVisibleProducts = () => {
     if (products.length === 0) return [];
     const visible = [];
@@ -127,33 +145,41 @@ export function ProductCarousel() {
 
   return (
     <section id="best-sellers" className="py-16 bg-white">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl md:text-5xl font-black text-pink-500 text-center mb-12 uppercase">
           {t('bestSellers')}
         </h2>
 
-        <div className="relative">
+        <div className="relative px-12">
           {/* Navigation Arrows */}
           <button
             onClick={handlePrevious}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-pink-500 hover:bg-pink-600 text-white p-3 rounded-full shadow-lg transition-all"
+            disabled={isAnimating}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-pink-500 hover:bg-pink-600 text-white p-3 rounded-full shadow-lg transition-all disabled:opacity-50"
           >
             <ChevronLeft size={24} />
           </button>
 
           <button
             onClick={handleNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-pink-500 hover:bg-pink-600 text-white p-3 rounded-full shadow-lg transition-all"
+            disabled={isAnimating}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-pink-500 hover:bg-pink-600 text-white p-3 rounded-full shadow-lg transition-all disabled:opacity-50"
           >
             <ChevronRight size={24} />
           </button>
 
           {/* Products Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="overflow-hidden">
+            <div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mx-auto pb-2 transition-transform duration-600 ease-in-out"
+              style={{
+                transform: isAnimating ? 'translateX(-20px)' : 'translateX(0)',
+              }}
+            >
             {getVisibleProducts().map((product) => (
               <div
                 key={product.id}
-                className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group"
+                className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group flex-shrink-0"
               >
                 {/* Product Image - Clickable */}
                 <Link href={`/product/${product.id}`}>
@@ -242,6 +268,7 @@ export function ProductCarousel() {
                 </div>
               </div>
             ))}
+            </div>
           </div>
         </div>
       </div>
