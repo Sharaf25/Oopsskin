@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Package, ShoppingCart, DollarSign, TrendingUp, AlertCircle, Ticket } from 'lucide-react';
+import { ShoppingCart, DollarSign, AlertCircle, Ticket, Settings, Users } from 'lucide-react';
 import Link from 'next/link';
 
 interface Stats {
@@ -85,13 +85,6 @@ export default function AdminDashboard() {
 
   const statCards = [
     {
-      title: 'Total Products',
-      value: stats.totalProducts,
-      icon: Package,
-      color: 'bg-blue-500',
-      link: '/admin/products'
-    },
-    {
       title: 'Total Orders',
       value: stats.totalOrders,
       icon: ShoppingCart,
@@ -115,7 +108,7 @@ export default function AdminDashboard() {
     {
       title: 'Pending Orders',
       value: stats.pendingOrders,
-      icon: TrendingUp,
+      icon: AlertCircle,
       color: 'bg-orange-500',
       link: '/admin/orders?status=pending'
     }
@@ -159,7 +152,7 @@ export default function AdminDashboard() {
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {statCards.map((stat) => {
           const Icon = stat.icon;
           return (
@@ -260,21 +253,21 @@ export default function AdminDashboard() {
       {/* Quick Actions */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Link
-          href="/admin/products/new"
-          className="bg-pink-500 hover:bg-pink-600 text-white rounded-lg p-6 text-center transition-colors"
-        >
-          <Package size={32} className="mx-auto mb-2" />
-          <h3 className="font-bold text-lg">Add New Product</h3>
-          <p className="text-sm text-pink-100 mt-1">Create a new product listing</p>
-        </Link>
-        
-        <Link
           href="/admin/orders"
           className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-6 text-center transition-colors"
         >
           <ShoppingCart size={32} className="mx-auto mb-2" />
           <h3 className="font-bold text-lg">Manage Orders</h3>
           <p className="text-sm text-blue-100 mt-1">View and update order status</p>
+        </Link>
+        
+        <Link
+          href="/admin/customers"
+          className="bg-pink-500 hover:bg-pink-600 text-white rounded-lg p-6 text-center transition-colors"
+        >
+          <Users size={32} className="mx-auto mb-2" />
+          <h3 className="font-bold text-lg">Manage Customers</h3>
+          <p className="text-sm text-pink-100 mt-1">View and manage customer accounts</p>
         </Link>
         
         <Link
@@ -287,12 +280,12 @@ export default function AdminDashboard() {
         </Link>
         
         <Link
-          href="/admin/products"
+          href="/admin/settings"
           className="bg-purple-500 hover:bg-purple-600 text-white rounded-lg p-6 text-center transition-colors"
         >
-          <TrendingUp size={32} className="mx-auto mb-2" />
-          <h3 className="font-bold text-lg">Product Analytics</h3>
-          <p className="text-sm text-purple-100 mt-1">View product performance</p>
+          <Settings size={32} className="mx-auto mb-2" />
+          <h3 className="font-bold text-lg">Website Settings</h3>
+          <p className="text-sm text-purple-100 mt-1">Configure slider and settings</p>
         </Link>
       </div>
     </div>

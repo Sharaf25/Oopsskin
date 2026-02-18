@@ -5,13 +5,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
-  Package, 
   ShoppingCart, 
   Users, 
   Settings,
   Menu,
   X,
-  LogOut
+  LogOut,
+  Ticket
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -24,9 +24,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const menuItems = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-    { name: 'Products', href: '/admin/products', icon: Package },
     { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
     { name: 'Customers', href: '/admin/customers', icon: Users },
+    { name: 'Vouchers', href: '/admin/vouchers', icon: Ticket },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 

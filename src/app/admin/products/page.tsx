@@ -108,18 +108,9 @@ export default function ProductsPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-          <p className="text-gray-600">Manage your product catalog</p>
-        </div>
-        <Link
-          href="/admin/products/new"
-          className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 font-semibold transition-colors"
-        >
-          <Plus size={20} />
-          Add Product
-        </Link>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Products</h1>
+        <p className="text-gray-600">Manage your product catalog</p>
       </div>
 
       {error && (
