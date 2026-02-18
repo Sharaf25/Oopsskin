@@ -2,7 +2,7 @@ const axios = require("axios");
 const qs = require("qs");
 const cache = require("../utils/cache");
 
-const DEFAULT_IMAGE = "https://www.stylecraze.com/wp-content/uploads/2021/01/15-Best-Honey-Skin-Care-Products-For-Beautiful-Skin-Banner.jpg";
+const DEFAULT_IMAGE = "https://www.rarebeauty.com/cdn/shop/files/HP-SPLIT-TOUT-ABOUT-SP-LIQUID-BLUSH-1522x1522_1522x.jpg?v=1743625703";
 
 const fetchProducts = async () => {
   const cached = cache.get("products");

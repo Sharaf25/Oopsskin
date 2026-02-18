@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-
 const AUTH_API_URL = 'http://localhost:5000/api/auth';
 
 
@@ -234,16 +233,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // LOGOUT USER
 
-  const logout = () => {
+  const logout = async () => {
     // Only run in browser
     if (typeof window === 'undefined') return;
     
-    console.log('Logging out...');
+    console.log('🚪 Logging out...');
     
-    // Clear tokens and user data
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('refreshToken');
-    setUser(null);
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      // Call backend logout API to invalidate token
+      if (token) {
+        console.log('📤 Calling logout API...');
+        const response = await fetch(`${AUTH_API_URL}/logout`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,  // Added "Bearer " prefix
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          mode: 'cors',
+        });
+
+        if (response.ok) {
+          console.log('✅ Logout API success');
+        } else {
+          console.warn('⚠️ Logout API returned error:', response.status);
+        }
+      }
+    } catch (error) {
+      console.error('❌ Logout API error:', error);
+      // Continue with local logout even if API call fails
+    } finally {
+      // Always clear tokens and user data locally
+      console.log('🧹 Clearing local storage and user state');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('refreshToken');
+      setUser(null);
+      
+      // Trigger a storage event to notify CartContext
+      window.dispatchEvent(new Event('storage'));
+      
+      console.log('✅ Logout complete');
+    }
   };
 
   const value = {

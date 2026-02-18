@@ -180,12 +180,16 @@ export default function CartPage() {
             <div className="bg-white rounded-lg shadow-lg p-6">
               {cart.map((item, index) => (
                 <div
-                  key={`${item.id}-${item.color}-${index}`}
+                  key={`${item.id}-${index}`}
                   className="flex flex-col md:flex-row gap-4 py-6 border-b border-gray-200 last:border-b-0"
                 >
                   {/* Product Image */}
                   <div className="w-full md:w-32 h-32 bg-gradient-to-br from-pink-100 to-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <div className="w-20 h-20 bg-pink-400 rounded-full"></div>
+                    {item.image ? (
+                      <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+                    ) : (
+                      <div className="w-20 h-20 bg-pink-400 rounded-full"></div>
+                    )}
                   </div>
 
                   {/* Product Info */}
@@ -193,15 +197,6 @@ export default function CartPage() {
                     <h3 className="font-bold text-lg text-gray-900 mb-1">{item.name}</h3>
                     {item.category && (
                       <p className="text-sm text-gray-500 mb-2">{item.category}</p>
-                    )}
-                    {item.color && (
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm text-gray-600">Color:</span>
-                        <div
-                          className="w-6 h-6 rounded-full border-2 border-gray-300"
-                          style={{ backgroundColor: item.color }}
-                        ></div>
-                      </div>
                     )}
                     <p className="text-xl font-bold text-pink-500">
                       ${item.price.toFixed(2)}
@@ -212,14 +207,29 @@ export default function CartPage() {
                   <div className="flex md:flex-col items-center justify-between md:justify-center gap-4">
                     <div className="flex items-center gap-2 bg-gray-100 rounded-full p-1">
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="w-8 h-8 flex items-center justify-center bg-white rounded-full hover:bg-pink-500 hover:text-white transition-colors"
+                        onClick={async () => {
+                          if (item.quantity > 1) {
+                            const result = await updateQuantity(item.id, item.quantity - 1);
+                            if (!result.success) {
+                              alert(result.error || 'Failed to update quantity');
+                            }
+                          }
+                        }}
+                        disabled={item.quantity <= 1}
+                        className={`w-8 h-8 flex items-center justify-center bg-white rounded-full hover:bg-pink-500 hover:text-white transition-colors ${
+                          item.quantity <= 1 ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
                       >
                         <Minus size={16} />
                       </button>
                       <span className="w-12 text-center font-bold">{item.quantity}</span>
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={async () => {
+                          const result = await updateQuantity(item.id, item.quantity + 1);
+                          if (!result.success) {
+                            alert(result.error || 'Failed to update quantity');
+                          }
+                        }}
                         className="w-8 h-8 flex items-center justify-center bg-white rounded-full hover:bg-pink-500 hover:text-white transition-colors"
                       >
                         <Plus size={16} />
@@ -228,7 +238,14 @@ export default function CartPage() {
 
                     {/* Remove Button */}
                     <button
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={async () => {
+                        if (confirm('Remove this item from cart?')) {
+                          const result = await removeFromCart(item.id);
+                          if (!result.success) {
+                            alert(result.error || 'Failed to remove item');
+                          }
+                        }
+                      }}
                       className="text-red-500 hover:text-red-600 transition-colors p-2"
                       title="Remove from cart"
                     >

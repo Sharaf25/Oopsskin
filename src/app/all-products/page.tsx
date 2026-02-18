@@ -7,6 +7,19 @@ import { useAuth } from '@/app/context/AuthContext';
 import { useLanguage } from '@/app/context/LanguageContext';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+// Product interface from API
+interface Product {
+  id: string;
+  name: string;
+  name_e?: string;
+  price: number;
+  item_img: string;
+  color_id_main?: string;
+  color_id_measure?: string[];
+  category?: string;
+  rating?: number;
+}
+
 function AllProductsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -14,6 +27,10 @@ function AllProductsContent() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(12); // Products per page
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'asc' | 'desc' | 'featured'>('featured');
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
   const { t } = useLanguage();
@@ -25,10 +42,55 @@ function AllProductsContent() {
     }
   }, [searchParams]);
 
+  // Fetch products from API
+  useEffect(() => {
+    fetchProducts();
+  }, []); // Fetch once on mount
+
   // Reset to page 1 when category changes
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedCategory, selectedSubcategory]);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch only first 6 products from API
+      const url = 'http://localhost:5000/api/products';
+      console.log('🔍 Fetching products from:', url);
+
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
+      }
+
+      const data = await response.json();
+      console.log('✅ Products fetched:', data);
+
+      // Transform API data to frontend format - limit to 6 products
+      const transformedProducts: Product[] = data.data.slice(0, 6).map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        name_e: item.name_e || 'Premium quality product',
+        price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
+        item_img: item.item_img,
+        color_id_main: item.color_id_main,
+        color_id_measure: item.color_id_measure,
+        category: item.category || item.class_id,
+        rating: 4.5 + Math.random() * 0.5, // Placeholder rating for styling (will be replaced with real data later)
+      }));
+
+      setProducts(transformedProducts);
+    } catch (err) {
+      console.error('❌ Error fetching products:', err);
+      setError('Failed to load products. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const categories = [
     {
@@ -57,33 +119,10 @@ function AllProductsContent() {
     },
   ];
 
-  // Sample products
-  const allProducts = [
-    { id: 1, name: 'Flawless Foundation', category: 'Foundation', price: 48.0, rating: 4.9 },
-    { id: 2, name: 'HD Powder', category: 'Powder & Setting Spray', price: 43.0, rating: 4.8 },
-    { id: 3, name: 'Velvet Primer', category: 'Primer', price: 35.0, rating: 4.7 },
-    { id: 4, name: 'Perfecting Concealer', category: 'Concealer & Corrector', price: 32.0, rating: 4.9 },
-    { id: 5, name: 'Contour Stick', category: 'Contour & Highlight', price: 28.0, rating: 4.6 },
-    { id: 6, name: 'Eyeshadow Palette', category: 'Eyeshadow', price: 65.0, rating: 5.0 },
-    { id: 7, name: 'Brow Pencil', category: 'Eyebrows', price: 22.0, rating: 4.8 },
-    { id: 8, name: 'Liquid Eyeliner', category: 'Eyeliner', price: 24.0, rating: 4.9 },
-    { id: 9, name: 'Volume Mascara', category: 'Mascara', price: 29.0, rating: 4.7 },
-    { id: 10, name: 'Lash Extensions', category: 'Fake Eyelashes', price: 18.0, rating: 4.8 },
-    { id: 11, name: 'Jelly Lip Stain', category: 'Jelly Stained Lips', price: 26.0, rating: 4.9 },
-    { id: 12, name: 'Glossy Lip Oil', category: 'Lip Gloss', price: 22.0, rating: 4.6 },
-    { id: 13, name: 'Matte Lipstick', category: 'Lipstick', price: 28.0, rating: 4.9 },
-    { id: 14, name: 'Precision Lip Liner', category: 'Lip Liner', price: 20.0, rating: 4.7 },
-    { id: 15, name: 'Nourishing Lip Balm', category: 'Lip Balm', price: 15.0, rating: 4.8 },
-    { id: 16, name: 'Cream Blush', category: 'Blush', price: 32.0, rating: 4.9 },
-    { id: 17, name: 'Bronzing Powder', category: 'Bronzer', price: 38.0, rating: 4.8 },
-    { id: 18, name: 'Makeup Brush Set', category: 'Brushes', price: 89.0, rating: 5.0 },
-    { id: 19, name: 'Beauty Sponge', category: 'Tools & Accessories', price: 18.0, rating: 4.7 },
-    { id: 20, name: 'Mini Kit Collection', category: 'Mini Products', price: 45.0, rating: 4.9 },
-  ];
-
+  // Filter products (client-side filtering for now)
   const filteredProducts = selectedSubcategory && selectedSubcategory !== 'All'
-    ? allProducts.filter((p) => p.category === selectedSubcategory)
-    : allProducts;
+    ? products.filter((p) => p.category === selectedSubcategory)
+    : products;
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -222,73 +261,127 @@ function AllProductsContent() {
               <p className="text-gray-600">
                 {t('showing')} {startIndex + 1}-{Math.min(endIndex, filteredProducts.length)} {t('of')} {filteredProducts.length} {t('products')}
               </p>
-              <select className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700">
-                <option>{t('sortByFeatured')}</option>
-                <option>{t('priceLowToHigh')}</option>
-                <option>{t('priceHighToLow')}</option>
-                <option>{t('bestSelling')}</option>
-                <option>{t('newest')}</option>
+              <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'asc' | 'desc' | 'featured')}
+                className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700"
+              >
+                <option value="featured">{t('sortByFeatured')}</option>
+                <option value="asc">{t('priceLowToHigh')}</option>
+                <option value="desc">{t('priceHighToLow')}</option>
               </select>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {currentProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow"
-                >
-                  {/* Product Image */}
-                  <div className="relative aspect-square bg-gradient-to-br from-pink-100 to-purple-100 p-4">
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="w-32 h-32 bg-pink-400 rounded-full" />
-                    </div>
-                  </div>
-
-                  {/* Product Info */}
-                  <div className="p-4">
-                    <p className="text-xs text-gray-500 mb-1 uppercase">{product.category}</p>
-                    <h3 className="font-bold text-lg mb-2 text-gray-900">{product.name}</h3>
-
-                    {/* Rating */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="flex text-pink-500 text-sm">
-                        {'★'.repeat(Math.floor(product.rating))}
-                      </div>
-                      <span className="text-sm text-gray-600">{product.rating}</span>
-                    </div>
-
-                    {/* Price */}
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-xl font-bold text-gray-900">
-                        ${product.price.toFixed(2)}
-                      </span>
-                    </div>
-
-                    {/* Add to Cart Button */}
-                    <button 
-                      onClick={() => {
-                        if (!isAuthenticated) {
-                          if (confirm(t('needSignIn'))) {
-                            router.push('/login');
-                          }
-                          return;
-                        }
-                        addToCart({
-                          id: product.id,
-                          name: product.name,
-                          price: product.price,
-                          category: product.category,
-                        });
-                        alert(`${product.name} ${t('addedToCart')}`);
-                      }}
-                      className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-full uppercase text-sm transition-all transform hover:scale-105"
-                    >
-                      {t('addToCart')}
-                    </button>
-                  </div>
+            {/* Loading State */}
+            {loading && (
+              <div className="flex items-center justify-center py-20">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-pink-500 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading products...</p>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
+
+            {/* Error State */}
+            {error && !loading && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                <p className="text-red-600 font-medium">{error}</p>
+                <button 
+                  onClick={fetchProducts}
+                  className="mt-4 bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-lg"
+                >
+                  Try Again
+                </button>
+              </div>
+            )}
+
+            {/* Products Grid */}
+            {!loading && !error && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {currentProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow"
+                  >
+                    {/* Product Image */}
+                    <div className="relative aspect-square bg-gradient-to-br from-pink-100 to-purple-100 overflow-hidden">
+                      {/* Styling Badge - will be replaced with real data later */}
+                      {Math.random() > 0.5 && (
+                        <span className={`absolute top-2 left-2 z-10 px-3 py-1 text-xs font-black uppercase rounded-full ${
+                          Math.random() > 0.66 ? 'bg-red-500 text-white' : 
+                          Math.random() > 0.33 ? 'bg-green-500 text-white' : 
+                          'bg-yellow-400 text-gray-900'
+                        }`}>
+                          {Math.random() > 0.66 ? 'SALE' : Math.random() > 0.33 ? 'NEW' : 'HOT'}
+                        </span>
+                      )}
+                      <img 
+                        src={product.item_img} 
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Fallback to placeholder if image fails
+                          e.currentTarget.src = 'https://via.placeholder.com/400x400?text=Product';
+                        }}
+                      />
+                    </div>
+
+                    {/* Product Info */}
+                    <div className="p-4">
+                      {product.category && (
+                        <p className="text-xs text-gray-500 mb-1 uppercase">{product.category}</p>
+                      )}
+                      <h3 className="font-bold text-lg mb-2 text-gray-900">{product.name}</h3>
+                      
+                      {/* Description for styling */}
+                      {product.name_e && (
+                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.name_e}</p>
+                      )}
+
+                      {/* Rating */}
+                      {product.rating && (
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="flex text-pink-500 text-sm">
+                            {'★'.repeat(Math.floor(product.rating))}
+                            {product.rating % 1 !== 0 && '☆'}
+                          </div>
+                          <span className="text-sm text-gray-600">{product.rating.toFixed(1)}</span>
+                        </div>
+                      )}
+
+                      {/* Price */}
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-xl font-bold text-gray-900">
+                          ${product.price.toFixed(2)}
+                        </span>
+                      </div>
+
+                      {/* Add to Cart Button */}
+                      <button 
+                        onClick={async () => {
+                          if (!isAuthenticated) {
+                            if (confirm(t('needSignIn'))) {
+                              router.push('/login');
+                            }
+                            return;
+                          }
+                          
+                          const result = await addToCart(product.id, 1);
+                          if (result.success) {
+                            alert(`${product.name} ${t('addedToCart')}`);
+                          } else {
+                            alert(result.error || 'Failed to add to cart');
+                          }
+                        }}
+                        className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-full uppercase text-sm transition-all transform hover:scale-105"
+                      >
+                        {t('addToCart')}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Pagination Controls */}
             {totalPages > 1 && (

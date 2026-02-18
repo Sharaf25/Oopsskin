@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '@/app/context/CartContext';
@@ -8,91 +8,54 @@ import { useAuth } from '@/app/context/AuthContext';
 import { useLanguage } from '@/app/context/LanguageContext';
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
-  description: string;
+  description?: string;
   price: number;
-  originalPrice?: number;
-  colors: string[];
-  rating: number;
-  reviews: number;
-  badge?: string;
-  discount?: string;
+  item_img: string;
+  rating?: number;
 }
-
-const products: Product[] = [
-  {
-    id: 1,
-    name: 'Easy Bake Pressed Powder Phone Grip',
-    description: 'Your favourite Easy Bake Pressed Powder, now as a phone grip for touch-ups anywhere',
-    price: 29.0,
-    colors: ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E', '#8B4513'],
-    rating: 5.0,
-    reviews: 3,
-    badge: 'EXCLUSIVE',
-  },
-  {
-    id: 2,
-    name: 'Easy Bake Pressed Powder',
-    description: 'Super fine pressed powder with silky shine control for a natural, velvety matte finish',
-    price: 43.0,
-    colors: ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E'],
-    rating: 4.9,
-    reviews: 1129,
-  },
-  {
-    id: 3,
-    name: 'Airbrush Made Easy Kit',
-    description: 'Easy Bake Pressed Powder and the Marshmallow Sponge, bundled for effortless flawless ups',
-    price: 53.0,
-    originalPrice: 84.0,
-    colors: ['#FFE4E1', '#F5DEB3', '#DEB887'],
-    rating: 5.0,
-    reviews: 8,
-    discount: 'SAVE 37%',
-  },
-  {
-    id: 4,
-    name: 'The Prime, Blur & Press Kit',
-    description: 'This Easy Routine with an airbrush finish using the Easy Bake Pressed',
-    price: 85.0,
-    originalPrice: 96.0,
-    colors: ['#000000', '#FFE4E1', '#F5DEB3'],
-    rating: 5.0,
-    reviews: 10,
-    discount: 'SAVE 67%',
-  },
-  {
-    id: 5,
-    name: 'Bake & Blur Setting Powder',
-    description: 'Easy baking powder for a soft-focus, blurred finish',
-    price: 38.0,
-    colors: ['#FFE4E1', '#F5DEB3', '#DEB887'],
-    rating: 4.8,
-    reviews: 856,
-  },
-  {
-    id: 6,
-    name: 'Foundation Essentials Kit',
-    description: 'Complete foundation kit with primer, powder and sponge',
-    price: 95.0,
-    originalPrice: 120.0,
-    colors: ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E'],
-    rating: 5.0,
-    reviews: 234,
-    discount: 'SAVE 20%',
-  },
-];
 
 export function ProductCarousel() {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedColors, setSelectedColors] = useState<{ [key: number]: number }>({});
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
   const { t } = useLanguage();
 
-  const handleAddToCart = (product: Product) => {
+  // Fetch best sellers from API
+  useEffect(() => {
+    fetchBestSellers();
+  }, []);
+
+  const fetchBestSellers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:5000/api/products');
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Get only first 6 products from API
+        const transformedProducts: Product[] = data.data.slice(0, 6).map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          description: item.name_e || 'Premium quality product', // Placeholder description for styling
+          price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
+          item_img: item.item_img,
+          rating: 4.5 + Math.random() * 0.5, // Placeholder rating for styling (will be replaced with real data later)
+        }));
+        setProducts(transformedProducts);
+      }
+    } catch (error) {
+      console.error('Error fetching best sellers:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddToCart = async (product: Product) => {
     if (!isAuthenticated) {
       if (confirm(t('needSignIn'))) {
         router.push('/login');
@@ -100,15 +63,12 @@ export function ProductCarousel() {
       return;
     }
 
-    const colorIndex = selectedColors[product.id] || 0;
-    addToCart({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      color: product.colors[colorIndex],
-      category: 'Makeup',
-    });
-    alert(`${product.name} ${t('addedToCart')}`);
+    const result = await addToCart(product.id, 1);
+    if (result.success) {
+      alert(`${product.name} ${t('addedToCart')}`);
+    } else {
+      alert(result.error || 'Failed to add to cart');
+    }
   };
 
   const handlePrevious = () => {
@@ -120,12 +80,32 @@ export function ProductCarousel() {
   };
 
   const getVisibleProducts = () => {
+    if (products.length === 0) return [];
     const visible = [];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < Math.min(4, products.length); i++) {
       visible.push(products[(currentIndex + i) % products.length]);
     }
     return visible;
   };
+
+  if (loading) {
+    return (
+      <section id="best-sellers" className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-4xl md:text-5xl font-black text-pink-500 text-center mb-12 uppercase">
+            {t('bestSellers')}
+          </h2>
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-pink-500"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (products.length === 0) {
+    return null;
+  }
 
   return (
     <section id="best-sellers" className="py-16 bg-white">
@@ -158,67 +138,51 @@ export function ProductCarousel() {
                 className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow"
               >
                 {/* Product Image */}
-                <div className="relative aspect-square bg-gray-100 p-4">
-                  {product.badge && (
-                    <span className="absolute top-4 left-4 bg-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                      {product.badge}
+                <div className="relative aspect-square bg-gradient-to-br from-pink-100 to-purple-100 overflow-hidden">
+                  {/* Styling Badge - will be replaced with real data later */}
+                  {Math.random() > 0.5 && (
+                    <span className={`absolute top-2 left-2 z-10 px-3 py-1 text-xs font-black uppercase rounded-full ${
+                      Math.random() > 0.66 ? 'bg-red-500 text-white' : 
+                      Math.random() > 0.33 ? 'bg-green-500 text-white' : 
+                      'bg-yellow-400 text-gray-900'
+                    }`}>
+                      {Math.random() > 0.66 ? 'SALE' : Math.random() > 0.33 ? 'NEW' : 'HOT'}
                     </span>
                   )}
-                  {product.discount && (
-                    <span className="absolute top-4 left-4 bg-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                      {product.discount}
-                    </span>
-                  )}
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="w-32 h-32 bg-pink-400 rounded-full" />
-                  </div>
+                  <img 
+                    src={product.item_img} 
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://via.placeholder.com/400x400?text=Product';
+                    }}
+                  />
                 </div>
 
                 {/* Product Info */}
                 <div className="p-4">
-                  <h3 className="font-bold text-lg mb-2 text-gray-900">{product.name}</h3>
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
+                  <h3 className="font-bold text-lg mb-2 text-gray-900 line-clamp-2">{product.name}</h3>
+                  {product.description && (
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
+                  )}
 
                   {/* Price */}
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-xl font-bold text-gray-900">${product.price.toFixed(2)}</span>
-                    {product.originalPrice && (
-                      <span className="text-sm text-gray-400 line-through">
-                        ${product.originalPrice.toFixed(2)}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Color Selector */}
-                  <div className="flex items-center gap-2 mb-3">
-                    {product.colors.map((color, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() =>
-                          setSelectedColors({ ...selectedColors, [product.id]: idx })
-                        }
-                        className={`w-8 h-8 rounded-full border-2 transition-all ${
-                          selectedColors[product.id] === idx
-                            ? 'border-pink-500 scale-110'
-                            : 'border-gray-300'
-                        }`}
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
-                    <button className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-gray-600 hover:border-pink-500">
-                      +
-                    </button>
                   </div>
 
                   {/* Rating */}
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="flex text-pink-500">
-                      {'★'.repeat(Math.floor(product.rating))}
+                  {product.rating && (
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="flex text-pink-500">
+                        {'★'.repeat(Math.floor(product.rating))}
+                        {product.rating % 1 !== 0 && '☆'}
+                      </div>
+                      <span className="text-sm text-gray-600">
+                        {product.rating.toFixed(1)}
+                      </span>
                     </div>
-                    <span className="text-sm text-gray-600">
-                      {product.rating} ({product.reviews})
-                    </span>
-                  </div>
+                  )}
 
                   {/* Add to Cart Button */}
                   <button 

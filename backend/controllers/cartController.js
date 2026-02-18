@@ -57,7 +57,21 @@ exports.getCart = async (req, res) => {
       .map(item => {
         const product = products.find(p => p.id === item.productId);
         if (!product) return null; // skip missing/price=0 products
-        return { ...item.toJSON(), product };
+        return { 
+          id: item.id,
+          cart_id: item.cart_id,
+          product_id: item.productId,
+          quantity: item.quantity,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+          product: {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            item_img: product.item_img,
+            category: product.category
+          }
+        };
       })
       .filter(Boolean);
 
