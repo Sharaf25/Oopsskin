@@ -33,18 +33,17 @@ export function ProductCarousel() {
   const fetchBestSellers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/products');
+      const response = await fetch('http://localhost:5000/api/products?sort=asc&limit=6');
       
       if (response.ok) {
         const data = await response.json();
-        // Get only first 6 products from API
         const transformedProducts: Product[] = data.data.slice(0, 6).map((item: any) => ({
           id: item.id,
           name: item.name,
-          description: item.name_e || 'Premium quality product', // Placeholder description for styling
+          description: item.name_e || '',
           price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
           item_img: item.item_img,
-          rating: 4.5 + Math.random() * 0.5, // Placeholder rating for styling (will be replaced with real data later)
+          rating: 4.5 + Math.random() * 0.5, // Placeholder rating
         }));
         setProducts(transformedProducts);
       }
@@ -139,16 +138,6 @@ export function ProductCarousel() {
               >
                 {/* Product Image */}
                 <div className="relative aspect-square bg-gradient-to-br from-pink-100 to-purple-100 overflow-hidden">
-                  {/* Styling Badge - will be replaced with real data later */}
-                  {Math.random() > 0.5 && (
-                    <span className={`absolute top-2 left-2 z-10 px-3 py-1 text-xs font-black uppercase rounded-full ${
-                      Math.random() > 0.66 ? 'bg-red-500 text-white' : 
-                      Math.random() > 0.33 ? 'bg-green-500 text-white' : 
-                      'bg-yellow-400 text-gray-900'
-                    }`}>
-                      {Math.random() > 0.66 ? 'SALE' : Math.random() > 0.33 ? 'NEW' : 'HOT'}
-                    </span>
-                  )}
                   <img 
                     src={product.item_img} 
                     alt={product.name}

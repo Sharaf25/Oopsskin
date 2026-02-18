@@ -45,20 +45,25 @@ function AllProductsContent() {
   // Fetch products from API
   useEffect(() => {
     fetchProducts();
-  }, []); // Fetch once on mount
+  }, [sortBy]);
 
-  // Reset to page 1 when category changes
+  // Reset to page 1 when category or sort changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, selectedSubcategory]);
+  }, [selectedCategory, selectedSubcategory, sortBy]);
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Fetch only first 6 products from API
-      const url = 'http://localhost:5000/api/products';
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (sortBy !== 'featured') {
+        params.append('sort', sortBy);
+      }
+
+      const url = `http://localhost:5000/api/products${params.toString() ? '?' + params.toString() : ''}`;
       console.log('🔍 Fetching products from:', url);
 
       const response = await fetch(url);
@@ -70,17 +75,17 @@ function AllProductsContent() {
       const data = await response.json();
       console.log('✅ Products fetched:', data);
 
-      // Transform API data to frontend format - limit to 6 products
-      const transformedProducts: Product[] = data.data.slice(0, 6).map((item: any) => ({
+      // Transform API data to frontend format
+      const transformedProducts: Product[] = data.data.map((item: any) => ({
         id: item.id,
         name: item.name,
-        name_e: item.name_e || 'Premium quality product',
+        name_e: item.name_e,
         price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
         item_img: item.item_img,
         color_id_main: item.color_id_main,
         color_id_measure: item.color_id_measure,
         category: item.category || item.class_id,
-        rating: 4.5 + Math.random() * 0.5, // Placeholder rating for styling (will be replaced with real data later)
+        rating: 4.5 + Math.random() * 0.5, // Placeholder rating (can be removed when API provides)
       }));
 
       setProducts(transformedProducts);
@@ -305,16 +310,6 @@ function AllProductsContent() {
                   >
                     {/* Product Image */}
                     <div className="relative aspect-square bg-gradient-to-br from-pink-100 to-purple-100 overflow-hidden">
-                      {/* Styling Badge - will be replaced with real data later */}
-                      {Math.random() > 0.5 && (
-                        <span className={`absolute top-2 left-2 z-10 px-3 py-1 text-xs font-black uppercase rounded-full ${
-                          Math.random() > 0.66 ? 'bg-red-500 text-white' : 
-                          Math.random() > 0.33 ? 'bg-green-500 text-white' : 
-                          'bg-yellow-400 text-gray-900'
-                        }`}>
-                          {Math.random() > 0.66 ? 'SALE' : Math.random() > 0.33 ? 'NEW' : 'HOT'}
-                        </span>
-                      )}
                       <img 
                         src={product.item_img} 
                         alt={product.name}
@@ -332,11 +327,6 @@ function AllProductsContent() {
                         <p className="text-xs text-gray-500 mb-1 uppercase">{product.category}</p>
                       )}
                       <h3 className="font-bold text-lg mb-2 text-gray-900">{product.name}</h3>
-                      
-                      {/* Description for styling */}
-                      {product.name_e && (
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.name_e}</p>
-                      )}
 
                       {/* Rating */}
                       {product.rating && (
