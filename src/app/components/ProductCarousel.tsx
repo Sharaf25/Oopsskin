@@ -14,6 +14,9 @@ interface Product {
   price: number;
   item_img: string;
   rating?: number;
+  reviewCount?: number;
+  badge?: string;
+  colors?: string[];
 }
 
 export function ProductCarousel() {
@@ -37,13 +40,28 @@ export function ProductCarousel() {
       
       if (response.ok) {
         const data = await response.json();
-        const transformedProducts: Product[] = data.data.slice(0, 6).map((item: any) => ({
+        
+        // Styling data for visual variety
+        const badges = ['EXCLUSIVE', 'BESTSELLER', null, 'NEW', null, null];
+        const colorSets = [
+          ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E', '#8B4513'],
+          ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E'],
+          ['#FFE4E1', '#F5DEB3', '#DEB887'],
+          ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E'],
+          ['#FFE4E1', '#F5DEB3'],
+          ['#DEB887', '#D2691E', '#8B4513'],
+        ];
+        
+        const transformedProducts: Product[] = data.data.slice(0, 6).map((item: any, index: number) => ({
           id: item.id,
           name: item.name,
           description: item.name_e || '',
           price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
           item_img: item.item_img,
-          rating: 4.5 + Math.random() * 0.5, // Placeholder rating
+          rating: 4.5 + Math.random() * 0.5,
+          reviewCount: Math.floor(Math.random() * 100) + 10,
+          badge: badges[index % badges.length] || undefined,
+          colors: colorSets[index % colorSets.length],
         }));
         setProducts(transformedProducts);
       }
@@ -134,10 +152,19 @@ export function ProductCarousel() {
             {getVisibleProducts().map((product) => (
               <div
                 key={product.id}
-                className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow"
+                className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
               >
                 {/* Product Image */}
-                <div className="relative aspect-square bg-gradient-to-br from-pink-100 to-purple-100 overflow-hidden">
+                <div className="relative aspect-square bg-gradient-to-br from-[#f5e6d3] to-[#e8d4ba] overflow-hidden">
+                  {/* Badge */}
+                  {product.badge && (
+                    <div className="absolute top-3 left-3 z-10">
+                      <span className="bg-gradient-to-r from-pink-500 to-pink-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase shadow-lg">
+                        {product.badge}
+                      </span>
+                    </div>
+                  )}
+                  
                   <img 
                     src={product.item_img} 
                     alt={product.name}
@@ -149,26 +176,51 @@ export function ProductCarousel() {
                 </div>
 
                 {/* Product Info */}
-                <div className="p-4">
-                  <h3 className="font-bold text-lg mb-2 text-gray-900 line-clamp-2">{product.name}</h3>
+                <div className="p-5">
+                  {/* Product Name (Arabic) */}
+                  <h3 className="font-bold text-base text-gray-900 mb-1 line-clamp-1">{product.name}</h3>
+                  
+                  {/* Product Description (English) */}
                   {product.description && (
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-2 leading-relaxed">{product.description}</p>
                   )}
 
                   {/* Price */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xl font-bold text-gray-900">${product.price.toFixed(2)}</span>
+                  <div className="mb-3">
+                    <span className="text-2xl font-bold text-gray-900">${product.price.toFixed(2)}</span>
                   </div>
+
+                  {/* Color Swatches */}
+                  {product.colors && product.colors.length > 0 && (
+                    <div className="flex items-center gap-1.5 mb-3">
+                      {product.colors.map((color, idx) => (
+                        <div
+                          key={idx}
+                          className="w-7 h-7 rounded-full border-2 border-gray-300 cursor-pointer hover:border-pink-500 transition-all"
+                          style={{ backgroundColor: color }}
+                          title={`Color ${idx + 1}`}
+                        />
+                      ))}
+                      {product.colors.length > 5 && (
+                        <button className="w-7 h-7 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white hover:border-pink-500 transition-all">
+                          <span className="text-xs text-gray-600 font-medium">+</span>
+                        </button>
+                      )}
+                    </div>
+                  )}
 
                   {/* Rating */}
                   {product.rating && (
                     <div className="flex items-center gap-2 mb-4">
                       <div className="flex text-pink-500">
-                        {'★'.repeat(Math.floor(product.rating))}
-                        {product.rating % 1 !== 0 && '☆'}
+                        {[...Array(5)].map((_, i) => (
+                          <span key={i} className="text-lg">
+                            {i < Math.floor(product.rating!) ? '★' : '☆'}
+                          </span>
+                        ))}
                       </div>
-                      <span className="text-sm text-gray-600">
-                        {product.rating.toFixed(1)}
+                      <span className="text-sm text-gray-700 font-medium">
+                        {product.rating.toFixed(1)} ({product.reviewCount})
                       </span>
                     </div>
                   )}
@@ -176,7 +228,7 @@ export function ProductCarousel() {
                   {/* Add to Cart Button */}
                   <button 
                     onClick={() => handleAddToCart(product)}
-                    className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-full uppercase text-sm transition-all transform hover:scale-105"
+                    className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-full uppercase text-sm transition-all transform hover:scale-105 shadow-md"
                   >
                     {t('addToCart')}
                   </button>
