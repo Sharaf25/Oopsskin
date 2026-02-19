@@ -67,7 +67,7 @@ function AllProductsContent() {
         params.append('sort', sortBy);
       }
 
-      const url = `http://localhost:5000/api/products${params.toString() ? '?' + params.toString() : ''}`;
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/products${params.toString() ? '?' + params.toString() : ''}`;
       console.log('🔍 Fetching products from:', url);
 
       const response = await fetch(url);

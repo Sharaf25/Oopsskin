@@ -96,7 +96,7 @@ export default function CartPage() {
     setVoucherError('');
 
     try {
-      const response = await fetch(`http://localhost:5000/api/vouchers/validate/${voucherCode}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/vouchers/validate/${voucherCode}`);
       const data = await response.json();
 
       if (data.success) {
@@ -440,7 +440,7 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
       };
 
       // Submit order to backend
-      const response = await fetch('http://localhost:5000/api/orders', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -453,7 +453,7 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
       if (data.success) {
         // If voucher was used, increment usage count
         if (appliedVoucher) {
-          await fetch(`http://localhost:5000/api/vouchers/apply/${appliedVoucher.code}`, {
+          await fetch(`${process.env.NEXT_PUBLIC_API_URL}/vouchers/apply/${appliedVoucher.code}`, {
             method: 'POST',
           });
         }

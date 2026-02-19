@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-const AUTH_API_URL = 'http://localhost:5000/api/auth';
+const AUTH_API_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
 
 
 export interface User {

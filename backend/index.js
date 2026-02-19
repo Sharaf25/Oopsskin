@@ -15,13 +15,23 @@ const productRoutes = require("./routes/productRoutes");
 
 const app = express();
 
-// Middleware - CORS Configuration
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'], // Frontend URLs
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// CORS Configuration
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  process.env.FRONTEND_URL,
+];
+
+app.use(
+  cors({
+    origin: true, // Allow all origins
+    credentials: true, // Allow cookies to be sent
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
 

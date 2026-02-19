@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 
-const CART_API_URL = 'http://localhost:5000/api/cart';
+const CART_API_URL = `${process.env.NEXT_PUBLIC_API_URL}/cart`;
 
 // Backend cart item structure
 interface BackendCartItem {
@@ -137,7 +137,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       console.log('➕ Adding to cart:', { productId, quantity });
 
-      const response = await fetch('http://localhost:5000/api/cart/add', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/add`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

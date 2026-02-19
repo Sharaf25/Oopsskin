@@ -63,7 +63,7 @@ export function ProductCarousel() {
   const fetchBestSellers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/products?sort=asc&limit=6');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?sort=asc&limit=6`);
       
       if (response.ok) {
         const data = await response.json();
