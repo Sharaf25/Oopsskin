@@ -1,120 +1,351 @@
-const axios = require("axios");
-const qs = require("qs");
-const cache = require("../utils/cache");
+const {
+  Product,
+  Category,
+  Tag,
+  ProductImage,
+  ProductRating,
+} = require("../models");
 
-const DEFAULT_IMAGE = "https://www.rarebeauty.com/cdn/shop/files/HP-SPLIT-TOUT-ABOUT-SP-LIQUID-BLUSH-1522x1522_1522x.jpg?v=1743625703";
+const { Op } = require("sequelize");
+const fs = require("fs");
 
-const fetchProducts = async () => {
-  const cached = cache.get("products");
-  if (cached) return cached;
-
+// ========================================
+// 1️⃣ ADD PRODUCT (ADMIN)
+// ========================================
+exports.addProduct = async (req, res) => {
   try {
-    const postData = qs.stringify({
-      token: "Vmc2QUhQak9WOGFoOGtmNXp5cEo4L3g4MHBmZE5uSGdKbk9LcnU0ZDdOWUZhRytna1BaTmxRSThEUEhLTWd3aTRUVk9acXlKK0hOWGQvKzFMbzJnRVNQOFBLZ2piWTZPakpUNEd2RVFqdVE9",
-      action: "download",
-      type: "products",
-      all: 0,
-      view_items_by: 0
+    const {
+      name_en,
+      name_ar,
+      details_en,
+      details_ar,
+      price,
+      before_price,
+      stock,
+      badge,
+      category_id,
+      tags,
+    } = req.body;
+
+    const product = await Product.create({
+      name_en,
+      name_ar,
+      details_en,
+      details_ar,
+      price,
+      before_price: before_price || null,
+      stock,
+      badge,
+      category_id: category_id || null,
     });
 
-    const response = await axios.post(
-      "https://test.hesabate.com/store_api.php",
-      postData,
-      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
-    );
+    if (tags && tags.length > 0) {
+      await product.setTags(tags);
+    }
 
-    const data = (response.data && response.data.table) ? response.data.table : [];
+    if (req.files && req.files.length > 0) {
+      for (let i = 0; i < req.files.length; i++) {
+        await ProductImage.create({
+          image_url: req.files[i].path,
+          is_featured: i === 0,
+          product_id: product.id,
+        });
+      }
+    }
 
-    const transformed = data
-      .map(product => {
-        const measureColors = product.measure ? product.measure.map(m => m.color_id) : [];
-        const price = (product.product_prices && product.product_prices[0]) ? product.product_prices[0].pprice : null;
-        return {
-          id: product.id,
-          name: product.name,
-          item_img: product.item_img || DEFAULT_IMAGE,
-          price,
-          color_id_main: product.color_id,
-          color_id_measure: measureColors
-        };
-      })
-      // ✅ Skip any products with price 0 or null
-      .filter(p => p.price && p.price > 0);
-
-    cache.set("products", transformed); // cache 30 min
-    return transformed;
-
+    res.status(201).json({ message: "Product created", product });
   } catch (err) {
-    console.error("Error fetching products:", err);
-    return [];
+    res.status(500).json({ message: err.message });
   }
 };
 
-
-// Controller for Express route
-const getProducts = async (req, res) => {
+// ========================================
+// 2️⃣ GET PRODUCTS (LIST)
+// ========================================
+exports.getProducts = async (req, res) => {
   try {
-    let products = await fetchProducts();
+    const lang = req.query.lang === "ar" ? "ar" : "en";
 
-    // --- Price filter ---
-    const minPrice = parseFloat(req.query.minPrice);
-    const maxPrice = parseFloat(req.query.maxPrice);
+    const {
+      minPrice,
+      maxPrice,
+      category,
+      tag,
+      search,
+      inStock,
+      sort = "asc",
+      page = 1,
+      limit = 10,
+    } = req.query;
 
-    if (!isNaN(minPrice)) {
-      products = products.filter(p => p.price !== null && p.price >= minPrice);
+    const where = {};
+
+    // ✅ Price filter
+    if (minPrice || maxPrice) {
+      where.price = {};
+      if (minPrice) where.price[Op.gte] = Number(minPrice);
+      if (maxPrice) where.price[Op.lte] = Number(maxPrice);
     }
-    if (!isNaN(maxPrice)) {
-      products = products.filter(p => p.price !== null && p.price <= maxPrice);
+
+    // ✅ Category filter (by ID)
+    if (category) {
+      where.category_id = Number(category);
     }
 
-    // --- Sorting ---
-    const sort = req.query.sort; // 'asc' or 'desc'
-    if (sort === 'asc') {
-      products.sort((a, b) => (a.price || 0) - (b.price || 0));
-    } else if (sort === 'desc') {
-      products.sort((a, b) => (b.price || 0) - (a.price || 0));
+    // ✅ Search
+    if (search) {
+      where[`name_${lang}`] = {
+        [Op.like]: `%${search}%`,
+      };
     }
 
-    // --- Pagination only if page or limit is provided ---
-    const hasPagination = req.query.page || req.query.limit;
-    let paginatedProducts = products;
+    // ✅ In stock filter
+    if (inStock === "true") {
+      where.stock = { [Op.gt]: 0 };
+    }
 
-    let page = 1;
-    let limit = products.length; // default: return all
+    // ✅ Sorting (ONLY BY PRICE)
+    const orderDirection = sort.toLowerCase() === "desc" ? "DESC" : "ASC";
 
-    if (hasPagination) {
-      page = parseInt(req.query.page) || 1;
-      limit = parseInt(req.query.limit) || 10;
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
-      paginatedProducts = products.slice(startIndex, endIndex);
+    const offset = (page - 1) * limit;
+
+    const products = await Product.findAndCountAll({
+      where,
+      include: [
+        { model: Category, as: "category" },
+        {
+          model: Tag,
+          as: "tags",
+          through: { attributes: [] },
+          ...(tag && { where: { id: tag } }),
+        },
+        { model: ProductImage, as: "images" },
+      ],
+      distinct: true,
+      offset: Number(offset),
+      limit: Number(limit),
+      order: [["price", orderDirection]], // 🔥 Always price
+    });
+
+    const data = products.rows.map((p) => {
+      const featured = p.images.find((i) => i.is_featured);
+
+      return {
+        id: p.id,
+        name: p[`name_${lang}`],
+        price: p.price,
+        before_price: p.before_price,
+        badge: p.badge,
+        star_rating: p.star_rating,
+        stock: p.stock,
+        featured_image: featured ? featured.image_url : null,
+        category: p.category ? p.category[`name_${lang}`] : null,
+        tags: p.tags.map((t) => t[`name_${lang}`]),
+      };
+    });
+
+    res.json({
+      totalItems: products.count,
+      totalPages: Math.ceil(products.count / limit),
+      currentPage: Number(page),
+      data,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ========================================
+// 3️⃣ PRODUCT DETAILS
+// ========================================
+exports.getProductDetails = async (req, res) => {
+  try {
+    const lang = req.query.lang === "ar" ? "ar" : "en";
+
+    const product = await Product.findByPk(req.params.id, {
+      include: [
+        { model: Category, as: "category" },
+        { model: Tag, as: "tags" },
+        { model: ProductImage, as: "images" },
+      ],
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
     }
 
     res.json({
-      totalItems: products.length,
-      page,
-      limit,
-      totalPages: hasPagination ? Math.ceil(products.length / limit) : 1,
-      data: paginatedProducts
+      id: product.id,
+      name: product[`name_${lang}`],
+      details: product[`details_${lang}`],
+      price: product.price,
+      before_price: product.before_price,
+      stock: product.stock,
+      badge: product.badge,
+      star_rating: product.star_rating,
+      rating_count: product.rating_count,
+      category: product.category ? product.category[`name_${lang}`] : null,
+      tags: product.tags.map((t) => t[`name_${lang}`]),
+      images: product.images,
     });
-
   } catch (err) {
-    console.error("Route error:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: err.message });
   }
 };
 
-
-
-// Optional: auto-refresh every 30 min
-setInterval(async () => {
-  console.log("Auto-refreshing products cache...");
+// ========================================
+// 4️⃣ EDIT PRODUCT (ADMIN)
+// ========================================
+exports.editProduct = async (req, res) => {
   try {
-    await fetchProducts();
-    console.log("Products cache refreshed.");
-  } catch (err) {
-    console.error("Error refreshing cache:", err);
-  }
-}, 30 * 60 * 1000);
+    const product = await Product.findByPk(req.params.id, {
+      include: ["images"],
+    });
 
-module.exports = { fetchProducts, getProducts };
+    if (!product) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    const { price, before_price, badge, category_id, tags, featured_image_id } =
+      req.body;
+
+    await product.update({
+      price,
+      before_price,
+      badge,
+      category_id: category_id || null,
+    });
+
+    if (tags) {
+      await product.setTags(tags);
+    }
+
+    if (featured_image_id) {
+      await ProductImage.update(
+        { is_featured: false },
+        { where: { product_id: product.id } },
+      );
+
+      await ProductImage.update(
+        { is_featured: true },
+        { where: { id: featured_image_id } },
+      );
+    }
+
+    if (req.files && req.files.length > 0) {
+      for (let file of req.files) {
+        await ProductImage.create({
+          image_url: file.path,
+          product_id: product.id,
+        });
+      }
+    }
+
+    res.json({ message: "Product updated" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ========================================
+// 5️⃣ DELETE PRODUCT (ADMIN)
+// ========================================
+exports.deleteProduct = async (req, res) => {
+  try {
+    const product = await Product.findByPk(req.params.id, {
+      include: ["images"],
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    for (const img of product.images) {
+      if (fs.existsSync(img.image_url)) {
+        fs.unlinkSync(img.image_url);
+      }
+    }
+
+    await product.destroy();
+
+    res.json({ message: "Product deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ========================================
+// 6️⃣ ADD / UPDATE STAR RATING
+// ========================================
+exports.addStarRating = async (req, res) => {
+  try {
+    const { rating } = req.body;
+    const userId = req.user.id;
+    const productId = req.params.id;
+
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ message: "Rating 1-5 only" });
+    }
+
+    const product = await Product.findByPk(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    let existing = await ProductRating.findOne({
+      where: { user_id: userId, product_id: productId },
+    });
+
+    if (existing) {
+      existing.rating = rating;
+      await existing.save();
+    } else {
+      await ProductRating.create({
+        user_id: userId,
+        product_id: productId,
+        rating,
+      });
+    }
+
+    const ratings = await ProductRating.findAll({
+      where: { product_id: productId },
+    });
+
+    const total = ratings.reduce((sum, r) => sum + r.rating, 0);
+    const avg = Math.round((total / ratings.length) * 10) / 10;
+
+    product.star_rating = avg;
+    product.rating_count = ratings.length;
+    await product.save();
+
+    res.json({
+      star_rating: product.star_rating,
+      rating_count: product.rating_count,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// ========================================
+// 7️⃣ DELETE PRODUCT IMAGE
+// ========================================
+exports.deleteProductImage = async (req, res) => {
+  try {
+    const image = await ProductImage.findByPk(req.params.imageId);
+
+    if (!image) {
+      return res.status(404).json({ message: "Image not found" });
+    }
+
+    if (fs.existsSync(image.image_url)) {
+      fs.unlinkSync(image.image_url);
+    }
+
+    await image.destroy();
+
+    res.json({ message: "Image deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

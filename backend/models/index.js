@@ -12,6 +12,12 @@ db.OrderItem = require("./OrderItem")(sequelize, Sequelize.DataTypes);
 db.RefreshToken = require("./RefreshToken")(sequelize, Sequelize.DataTypes);
 db.InvalidToken = require("./InvalidToken")(sequelize, Sequelize.DataTypes);
 db.Voucher = require("./Voucher")(sequelize, Sequelize.DataTypes);
+//
+db.Category = require("./Category")(sequelize, Sequelize.DataTypes);
+db.Tag = require("./Tag")(sequelize, Sequelize.DataTypes);
+db.Product = require("./Product")(sequelize, Sequelize.DataTypes);
+db.ProductImage = require("./ProductImage")(sequelize, Sequelize.DataTypes);
+db.ProductRating = require("./ProductRating")(sequelize, Sequelize.DataTypes);
 
 // Then run associations
 Object.values(db).forEach((model) => {

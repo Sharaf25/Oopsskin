@@ -7,8 +7,10 @@ const {
   current,
   logout,
 } = require("../controllers/authController");
-const { ensureAuthenticated, authorize } = require("../middleware/authMiddleware");
-
+const {
+  ensureAuthenticated,
+  authorize,
+} = require("../middleware/authMiddleware");
 
 router.post("/register", register);
 router.post("/login", login);
@@ -32,5 +34,3 @@ router.get("/current", ensureAuthenticated, current);
 // });
 
 module.exports = router;
-
-

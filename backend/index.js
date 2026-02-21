@@ -3,7 +3,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require("dotenv").config();
 
-const { sequelize } = require("./models");
+const { sequelize, Product } = require("./models"); // make sure Product is imported
 const cleanExpiredTokens = require("./utils/cleanExpiredTokens");
 
 // Routers
@@ -12,6 +12,10 @@ const cartRouter = require("./routes/cartRoutes");
 const orderRouter = require("./routes/orderRoutes");
 const voucherRouter = require("./routes/voucherRoutes");
 const productRoutes = require("./routes/productRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
+const tagRoutes = require("./routes/tagRoutes");
+
+const createDummyData = require("./seeders/dummyData"); // Import seeder
 
 const app = express();
 
@@ -28,7 +32,7 @@ app.use(
     credentials: true, // Allow cookies to be sent
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 
 // Middleware
@@ -40,17 +44,25 @@ app.use("/api/auth", authRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/admin/vouchers", voucherRouter);
-
-// Mount product routes under /api
-app.use("/api", productRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/tags", tagRoutes);
 
 // Default route
 app.get("/", (req, res) => res.send("Welcome to the API"));
 
-// Sync database tables
+// Sync database tables AND run dummy data seeder
 sequelize
   .sync({ alter: true })
-  .then(() => console.log("✅ Tables are synced"))
+  .then(async () => {
+    console.log("✅ Tables are synced");
+
+    // Only create dummy data if products table is empty
+    const count = await Product.count();
+    if (count === 0) {
+      await createDummyData();
+    }
+  })
   .catch((err) => console.error("❌ Error syncing tables:", err));
 
 // Run cleanup once at startup and every hour
