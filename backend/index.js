@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 
 const { sequelize, Product } = require("./models"); // make sure Product is imported
@@ -38,6 +39,10 @@ app.use(
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+
+// Serve static files from the uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+console.log('📁 Serving static files from:', path.join(__dirname, 'uploads'));
 
 // Routes
 app.use("/api/auth", authRouter);

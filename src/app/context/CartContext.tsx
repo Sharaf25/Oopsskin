@@ -2,8 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
-
-const CART_API_URL = `${process.env.NEXT_PUBLIC_API_URL}/cart`;
+import { API_ENDPOINTS, APP_CONSTANTS } from '@/config/api';
 
 // Backend cart item structure
 interface BackendCartItem {
@@ -75,7 +74,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Helper function to get auth token
   const getAuthToken = (): string | null => {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('authToken');
+    return localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.AUTH_TOKEN);
   };
 
   // REFRESH CART - Fetch cart from backend
@@ -88,7 +87,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
 
       console.log('🛒 Fetching cart from API...');
-      const response = await fetch(CART_API_URL, {
+      const response = await fetch(API_ENDPOINTS.CART.BASE, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -182,7 +181,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       console.log('📝 Updating quantity:', { itemId, quantity });
 
-      const response = await fetch(`${CART_API_URL}/update/${itemId}`, {
+      const response = await fetch(API_ENDPOINTS.CART.UPDATE(itemId), {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -227,7 +226,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       console.log('🗑️ Removing from cart:', itemId);
 
-      const response = await fetch(`${CART_API_URL}/delete/${itemId}`, {
+      const response = await fetch(API_ENDPOINTS.CART.DELETE(itemId), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

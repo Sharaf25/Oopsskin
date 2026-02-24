@@ -1,8 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-const AUTH_API_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
+import { API_ENDPOINTS, APP_CONSTANTS } from '@/config/api';
 
 
 export interface User {
@@ -64,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.AUTH_TOKEN);
       
       if (!token) {
         setLoading(false);
@@ -74,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('🔍 Checking authentication with token...');
 
       // Call currentUser API with token in Authorization header
-      const response = await fetch(`${AUTH_API_URL}/current`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.CURRENT, {
         method: 'GET',
         headers: {
           'Authorization': token,
@@ -98,15 +97,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         console.log('Authentication failed, clearing token');
         // Token invalid or expired, clear it
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('refreshToken');
+        localStorage.removeItem(APP_CONSTANTS.STORAGE_KEYS.AUTH_TOKEN);
+        localStorage.removeItem(APP_CONSTANTS.STORAGE_KEYS.REFRESH_TOKEN);
         setUser(null);
       }
     } catch (error) {
       console.error('Auth check error:', error);
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('refreshToken');
+        localStorage.removeItem(APP_CONSTANTS.STORAGE_KEYS.AUTH_TOKEN);
+        localStorage.removeItem(APP_CONSTANTS.STORAGE_KEYS.REFRESH_TOKEN);
       }
       setUser(null);
     } finally {
@@ -125,8 +124,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       console.log('📝 Registering user:', { ...userData, password: '***' });
+      console.log('📝 API URL:', API_ENDPOINTS.AUTH.REGISTER);
 
-      const response = await fetch(`${AUTH_API_URL}/register`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.REGISTER, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -141,24 +141,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         mode: 'cors',
       });
 
+      console.log('📝 Register response status:', response.status, response.statusText);
+
       const data = await response.json();
-      console.log('📝 Register response:', { status: response.status, data });
+      console.log('📝 Register response data:', data);
 
       if (response.ok) {
-        console.log('Registration successful, auto-logging in...');
+        console.log('✅ Registration successful, auto-logging in...');
         // Registration successful, now login automatically
         return await login(userData.email, userData.password);
       } else {
+        console.error('❌ Registration failed:', data.message);
         return {
           success: false,
           error: data.message || 'Registration failed. Please try again.',
         };
       }
-    } catch (error) {
-      console.error('Registration error:', error);
+    } catch (error: any) {
+      console.error('❌ Registration error:', error);
+      console.error('❌ Error details:', error.message, error.stack);
       return {
         success: false,
-        error: 'Network error. Please check your connection and ensure the backend server is running on port 5000.',
+        error: error.message || 'Network error. Please check your connection and ensure the backend server is running on port 5000.',
       };
     }
   };
@@ -174,9 +178,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       console.log('Attempting login:', { email, password: '***' });
-      console.log('API URL:', `${AUTH_API_URL}/login`);
+      console.log('API URL:', API_ENDPOINTS.AUTH.LOGIN);
 
-      const response = await fetch(`${AUTH_API_URL}/login`, {
+      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -195,10 +199,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('Login successful');
         
         // Store tokens in localStorage
-        localStorage.setItem('authToken', data.token);
+        localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.AUTH_TOKEN, data.token);
         
         if (data.refreshToken) {
-          localStorage.setItem('refreshToken', data.refreshToken);
+          localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.REFRESH_TOKEN, data.refreshToken);
         }
 
         // Set user data
@@ -207,7 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           name: data.name || data.email,
           email: data.email,
           phone: data.phone || '',
-          role: data.role || 'user',
+          role: data.role || APP_CONSTANTS.USER_ROLES.USER,
         });
 
         return { success: true };
@@ -240,12 +244,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('🚪 Logging out...');
     
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.AUTH_TOKEN);
       
       // Call backend logout API to invalidate token
       if (token) {
         console.log('📤 Calling logout API...');
-        const response = await fetch(`${AUTH_API_URL}/logout`, {
+        const response = await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,  // Added "Bearer " prefix
@@ -267,8 +271,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       // Always clear tokens and user data locally
       console.log('🧹 Clearing local storage and user state');
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('refreshToken');
+      localStorage.removeItem(APP_CONSTANTS.STORAGE_KEYS.AUTH_TOKEN);
+      localStorage.removeItem(APP_CONSTANTS.STORAGE_KEYS.REFRESH_TOKEN);
       setUser(null);
       
       // Trigger a storage event to notify CartContext

@@ -5,23 +5,34 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useCart } from '@/app/context/CartContext';
 import { useAuth } from '@/app/context/AuthContext';
 import { useLanguage } from '@/app/context/LanguageContext';
+import { API_ENDPOINTS, API_BASE_URL } from '@/config/api';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
-// Product interface from API
+// Product interface from new API (actual response structure)
 interface Product {
-  id: string;
+  id: number;
   name: string;
-  name_e?: string;
   price: number;
-  item_img: string;
-  color_id_main?: string;
-  color_id_measure?: string[];
-  category?: string;
+  before_price?: number | null;
+  badge?: string | null;
+  star_rating: number;
+  stock: number;
+  featured_image: string;
+  category: string;
+  tags: string[];
+  // Optional computed fields
   rating?: number;
   reviewCount?: number;
-  badge?: string;
   colors?: string[];
+}
+
+// API Response interface
+interface ProductsAPIResponse {
+  totalItems: number;    // API returns totalItems, not totalCount
+  totalPages: number;
+  currentPage: number;
+  data: Product[];
 }
 
 function AllProductsContent() {
@@ -30,14 +41,20 @@ function AllProductsContent() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(12); // Products per page
+  const [itemsPerPage] = useState(10); // Products per page
   const [products, setProducts] = useState<Product[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'asc' | 'desc' | 'featured'>('featured');
+  const [minPrice, setMinPrice] = useState<number>(0);
+  const [maxPrice, setMaxPrice] = useState<number>(1000);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     const category = searchParams?.get('category');
@@ -46,76 +63,107 @@ function AllProductsContent() {
     }
   }, [searchParams]);
 
-  // Fetch products from API
-  useEffect(() => {
-    fetchProducts();
-  }, [sortBy]);
-
-  // Reset to page 1 when category or sort changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedCategory, selectedSubcategory, sortBy]);
-
   const fetchProducts = async () => {
     try {
+      console.log('🚀 Starting fetchProducts...');
+      console.log('📍 Current state:', { currentPage, itemsPerPage, language, sortBy, priceRange });
+      
       setLoading(true);
       setError(null);
 
-      // Build query parameters
-      const params = new URLSearchParams();
+      // Build URL with all query parameters
+      let url = `${API_ENDPOINTS.PRODUCTS.BASE}?lang=${language}&page=${currentPage}&limit=${itemsPerPage}`;
+      
+      // Add sort parameter if not featured
       if (sortBy !== 'featured') {
-        params.append('sort', sortBy);
+        url += `&sort=${sortBy}`;
       }
-
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/products${params.toString() ? '?' + params.toString() : ''}`;
+      
+      // Add price range filters
+      if (priceRange[0] > 0) {
+        url += `&minPrice=${priceRange[0]}`;
+      }
+      if (priceRange[1] < 1000) {
+        url += `&maxPrice=${priceRange[1]}`;
+      }
+      
+      // Add search query if present
+      if (searchQuery.trim()) {
+        url += `&search=${encodeURIComponent(searchQuery.trim())}`;
+      }
+      
       console.log('🔍 Fetching products from:', url);
 
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('📡 Response status:', response.status, response.statusText);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch products');
+        const errorText = await response.text();
+        console.error('❌ Response not OK:', errorText);
+        throw new Error(`Failed to fetch products: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('✅ Products fetched:', data);
+      console.log('✅ API Response:', data);
+      console.log('📊 Data structure:', {
+        hasData: !!data,
+        hasDataArray: !!(data && data.data),
+        isArray: Array.isArray(data?.data),
+        dataLength: data?.data?.length,
+        totalItems: data?.totalItems,
+      });
 
-      // Styling data for visual variety
-      const badges = ['EXCLUSIVE', 'BESTSELLER', null, 'NEW', null, 'TRENDING', null, null];
-      const colorSets = [
-        ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E', '#8B4513'],
-        ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E'],
-        ['#FFE4E1', '#F5DEB3', '#DEB887'],
-        ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E'],
-        ['#FFE4E1', '#F5DEB3'],
-        ['#DEB887', '#D2691E', '#8B4513'],
-        ['#FFE4E1', '#F5DEB3', '#DEB887'],
-        ['#F5DEB3', '#DEB887', '#D2691E'],
-      ];
-
-      // Transform API data to frontend format
-      const transformedProducts: Product[] = data.data.map((item: any, index: number) => ({
-        id: item.id,
-        name: item.name,
-        name_e: item.name_e,
-        price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
-        item_img: item.item_img,
-        color_id_main: item.color_id_main,
-        color_id_measure: item.color_id_measure,
-        category: item.category || item.class_id,
-        rating: 4.5 + Math.random() * 0.5,
-        reviewCount: Math.floor(Math.random() * 100) + 10,
-        badge: badges[index % badges.length] || undefined,
-        colors: colorSets[index % colorSets.length],
-      }));
-
-      setProducts(transformedProducts);
-    } catch (err) {
+      // Handle the API response structure
+      if (data && data.data && Array.isArray(data.data)) {
+        console.log('✅ Valid data structure, processing products...');
+        
+        // Add computed fields for UI enhancement
+        const enhancedProducts = data.data.map((product: Product) => ({
+          ...product,
+          rating: product.star_rating || (4 + Math.random() * 1),
+          reviewCount: Math.floor(Math.random() * 100) + 10,
+          colors: ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E'].slice(0, Math.floor(Math.random() * 4) + 2),
+        }));
+        
+        console.log('✅ Enhanced products:', enhancedProducts.length, 'items');
+        
+        setProducts(enhancedProducts);
+        setTotalCount(data.totalItems || data.data.length);
+        setTotalPages(data.totalPages || Math.ceil((data.totalItems || data.data.length) / itemsPerPage));
+        
+        console.log('✅ State updated successfully');
+      } else {
+        console.error('❌ Unexpected API response structure:', data);
+        setError('Invalid response from server');
+      }
+      
+    } catch (err: any) {
       console.error('❌ Error fetching products:', err);
-      setError('Failed to load products. Please try again later.');
+      console.error('❌ Error details:', err.message, err.stack);
+      setError(`Failed to load products: ${err.message}`);
     } finally {
       setLoading(false);
+      console.log('🏁 fetchProducts completed');
     }
   };
+
+  // Fetch products from API
+  useEffect(() => {
+    console.log('⚡ useEffect triggered for fetchProducts');
+    fetchProducts();
+  }, [sortBy, currentPage, language, priceRange, searchQuery]);
+
+  // Reset to page 1 when category, sort, price range, or search changes
+  useEffect(() => {
+    console.log('⚡ Resetting to page 1');
+    setCurrentPage(1);
+  }, [selectedCategory, selectedSubcategory, sortBy, priceRange, searchQuery]);
 
   const categories = [
     {
@@ -149,11 +197,10 @@ function AllProductsContent() {
     ? products.filter((p) => p.category === selectedSubcategory)
     : products;
 
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  // Use products from current page (already paginated by API)
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+  const currentProducts = filteredProducts;
 
   // Pagination handlers
   const goToPage = (page: number) => {
@@ -277,14 +324,106 @@ function AllProductsContent() {
                   )}
                 </div>
               ))}
+
+              {/* Price Range Filter */}
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <h3 className="text-lg font-black text-gray-900 mb-4 uppercase">Price Range</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between text-sm font-medium text-gray-700">
+                    <span>${priceRange[0]}</span>
+                    <span>${priceRange[1]}</span>
+                  </div>
+                  
+                  {/* Dual-Handle Range Slider */}
+                  <div className="relative h-6">
+                    {/* Track */}
+                    <div className="absolute top-1/2 -translate-y-1/2 w-full h-2 bg-gray-200 rounded-lg"></div>
+                    
+                    {/* Active Track */}
+                    <div 
+                      className="absolute top-1/2 -translate-y-1/2 h-2 bg-pink-500 rounded-lg"
+                      style={{
+                        left: `${(priceRange[0] / 1000) * 100}%`,
+                        right: `${100 - (priceRange[1] / 1000) * 100}%`
+                      }}
+                    ></div>
+                    
+                    {/* Min Handle */}
+                    <input
+                      type="range"
+                      min="0"
+                      max="1000"
+                      step="10"
+                      value={priceRange[0]}
+                      onChange={(e) => {
+                        const newMin = parseInt(e.target.value);
+                        if (newMin <= priceRange[1] - 10) {
+                          setPriceRange([newMin, priceRange[1]]);
+                        }
+                      }}
+                      className="absolute top-0 w-full h-full appearance-none bg-transparent pointer-events-none z-20 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-pink-500 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:hover:bg-pink-50 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-pink-500 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:hover:bg-pink-50"
+                    />
+                    
+                    {/* Max Handle */}
+                    <input
+                      type="range"
+                      min="0"
+                      max="1000"
+                      step="10"
+                      value={priceRange[1]}
+                      onChange={(e) => {
+                        const newMax = parseInt(e.target.value);
+                        if (newMax >= priceRange[0] + 10) {
+                          setPriceRange([priceRange[0], newMax]);
+                        }
+                      }}
+                      className="absolute top-0 w-full h-full appearance-none bg-transparent pointer-events-none z-20 [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-pink-500 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:hover:bg-pink-50 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-pink-500 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:hover:bg-pink-50"
+                    />
+                  </div>
+
+                  {/* Reset Price Filter */}
+                  <button
+                    onClick={() => setPriceRange([0, 1000])}
+                    className="w-full text-sm text-pink-500 hover:text-pink-600 font-medium"
+                  >
+                    Reset Price Filter
+                  </button>
+                </div>
+              </div>
             </div>
           </aside>
 
           {/* Products Grid */}
           <div className="flex-1">
+            {/* Search Bar */}
+            <div className="mb-6">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={t('searchProducts') || 'Search products...'}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                />
+                <svg
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+            </div>
+
             <div className="flex justify-between items-center mb-6">
               <p className="text-gray-600">
-                {t('showing')} {startIndex + 1}-{Math.min(endIndex, filteredProducts.length)} {t('of')} {filteredProducts.length} {t('products')}
+                {t('showing')} {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, totalCount)} {t('of')} {totalCount} {t('products')}
               </p>
               <select 
                 value={sortBy}
@@ -321,7 +460,7 @@ function AllProductsContent() {
             )}
 
             {/* Products Grid */}
-            {!loading && !error && (
+            {!loading && !error && currentProducts.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {currentProducts.map((product) => (
                   <div
@@ -341,7 +480,13 @@ function AllProductsContent() {
                         )}
                         
                         <img 
-                          src={product.item_img} 
+                          src={
+                            product.featured_image 
+                              ? product.featured_image.startsWith('http') 
+                                ? product.featured_image 
+                                : `${API_BASE_URL.replace('/api', '')}/${product.featured_image}`
+                              : 'https://via.placeholder.com/400x400?text=Product'
+                          } 
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
@@ -353,20 +498,23 @@ function AllProductsContent() {
 
                     {/* Product Info */}
                     <div className="p-5">
-                      {/* Product Name (Arabic) - Clickable */}
+                      {/* Product Name - Clickable */}
                       <Link href={`/product/${product.id}`}>
                         <h3 className="font-bold text-base text-gray-900 mb-1 line-clamp-1 hover:text-pink-500 transition-colors cursor-pointer">
                           {product.name}
                         </h3>
                       </Link>
                       
-                      {/* Product Description (English) */}
-                      {product.name_e && (
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2 leading-relaxed">{product.name_e}</p>
-                      )}
+                      {/* Product Category */}
+                      <p className="text-sm text-gray-600 mb-3">{product.category}</p>
 
                       {/* Price */}
                       <div className="mb-3">
+                        {product.before_price && (
+                          <span className="text-sm text-gray-400 line-through mr-2">
+                            ${product.before_price.toFixed(2)}
+                          </span>
+                        )}
                         <span className="text-2xl font-bold text-gray-900">${product.price.toFixed(2)}</span>
                       </div>
 
@@ -415,7 +563,7 @@ function AllProductsContent() {
                             return;
                           }
                           
-                          const result = await addToCart(product.id, 1);
+                          const result = await addToCart(product.id.toString(), 1);
                           if (result.success) {
                             alert(`${product.name} ${t('addedToCart')}`);
                           } else {
@@ -432,8 +580,24 @@ function AllProductsContent() {
               </div>
             )}
 
+            {/* Empty State */}
+            {!loading && !error && currentProducts.length === 0 && (
+              <div className="flex items-center justify-center py-20">
+                <div className="text-center">
+                  <p className="text-2xl text-gray-600 mb-4">No products found</p>
+                  <p className="text-gray-500">Try adjusting your filters or check back later.</p>
+                  <button 
+                    onClick={fetchProducts}
+                    className="mt-4 bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-lg"
+                  >
+                    Reload Products
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Pagination Controls */}
-            {totalPages > 1 && (
+            {totalPages > 1 && !loading && !error && (
               <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
                 {/* Page Info */}
                 <div className="text-sm text-gray-600">

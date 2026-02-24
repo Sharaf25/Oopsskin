@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { ShoppingCart, DollarSign, AlertCircle, Ticket, Settings, Users } from 'lucide-react';
 import Link from 'next/link';
+import { API_ENDPOINTS } from '@/config/api';
 
 interface Stats {
   totalProducts: number;
@@ -44,19 +45,19 @@ export default function AdminDashboard() {
       setLoading(true);
       
       // Fetch order statistics
-      const statsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/stats/summary`);
+      const statsRes = await fetch(API_ENDPOINTS.ORDERS.STATS);
       const statsData = await statsRes.json();
       
       // Fetch recent orders
-      const ordersRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders?limit=5`);
+      const ordersRes = await fetch(`${API_ENDPOINTS.ORDERS.BASE}?limit=5`);
       const ordersData = await ordersRes.json();
       
       // Fetch products count
-      const productsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
+      const productsRes = await fetch(API_ENDPOINTS.PRODUCTS.BASE);
       const productsData = await productsRes.json();
 
       // Fetch vouchers statistics
-      const vouchersRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/vouchers/stats/summary`);
+      const vouchersRes = await fetch(API_ENDPOINTS.VOUCHERS.STATS);
       const vouchersData = await vouchersRes.json();
 
       if (statsData.success) {

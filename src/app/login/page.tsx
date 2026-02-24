@@ -170,17 +170,6 @@ export default function LoginPage() {
               </div>
             </form>
           </div>
-
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
-            <p className="text-sm text-gray-700 font-medium mb-2">
-              💡 Demo Account:
-            </p>
-            <p className="text-xs text-gray-600">
-              Email: demo@oopsskin.com<br />
-              Password: demo123
-            </p>
-          </div>
         </div>
       </div>
     </main>

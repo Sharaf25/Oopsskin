@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '@/app/context/CartContext';
 import { useAuth } from '@/app/context/AuthContext';
 import { useLanguage } from '@/app/context/LanguageContext';
+import { API_ENDPOINTS } from '@/config/api';
 import Link from 'next/link';
 
 interface Product {
@@ -63,7 +64,7 @@ export function ProductCarousel() {
   const fetchBestSellers = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?sort=asc&limit=6`);
+      const response = await fetch(`${API_ENDPOINTS.PRODUCTS.BASE}?sort=asc&limit=6`);
       
       if (response.ok) {
         const data = await response.json();
