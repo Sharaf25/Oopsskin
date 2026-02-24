@@ -161,6 +161,7 @@ exports.getProducts = async (req, res) => {
 exports.getProductDetails = async (req, res) => {
   try {
     const lang = req.query.lang === "ar" ? "ar" : "en";
+    const userId = req.user?.id; // Get user ID if authenticated
 
     const product = await Product.findByPk(req.params.id, {
       include: [
@@ -174,6 +175,15 @@ exports.getProductDetails = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
+    // Get user's rating if authenticated
+    let userRating = null;
+    if (userId) {
+      const rating = await ProductRating.findOne({
+        where: { user_id: userId, product_id: product.id },
+      });
+      userRating = rating ? rating.rating : null;
+    }
+
     res.json({
       id: product.id,
       name: product[`name_${lang}`],
@@ -184,6 +194,7 @@ exports.getProductDetails = async (req, res) => {
       badge: product.badge,
       star_rating: product.star_rating,
       rating_count: product.rating_count,
+      user_rating: userRating, // Add user's rating
       category: product.category ? product.category[`name_${lang}`] : null,
       tags: product.tags.map((t) => t[`name_${lang}`]),
       images: product.images,

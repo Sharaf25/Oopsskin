@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Star, Gift, Plus, Minus } from 'lucide-react';
+import { Gift, Plus, Minus } from 'lucide-react';
 import { useCart } from '@/app/context/CartContext';
 import { useAuth } from '@/app/context/AuthContext';
+import ProductRating from '@/app/components/ProductRating';
 import Link from 'next/link';
 
 interface Product {
@@ -16,6 +17,7 @@ interface Product {
   stock?: number;
   rating: number;
   reviewCount: number;
+  userRating?: number | null; // Add user rating
   images: string[];
   badge?: string;
   colors?: string[];
@@ -41,12 +43,16 @@ export default function ProductDetailClient({
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [showProductInfo, setShowProductInfo] = useState(false);
+  const [currentRating, setCurrentRating] = useState(initialProduct.rating);
+  const [currentRatingCount, setCurrentRatingCount] = useState(initialProduct.reviewCount);
 
   // Update local state when props change (due to language switch in parent)
   useEffect(() => {
     setProduct(initialProduct);
     setRelatedProducts(initialRelatedProducts);
     setSelectedImage(0); // Reset to first image when product changes
+    setCurrentRating(initialProduct.rating);
+    setCurrentRatingCount(initialProduct.reviewCount);
   }, [initialProduct, initialRelatedProducts]);
 
   useEffect(() => {
@@ -143,20 +149,22 @@ export default function ProductDetailClient({
             {/* Description */}
             <p className="text-gray-600 mb-4 leading-relaxed">{product.description}</p>
 
-            {/* Rating */}
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex text-pink-500">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={20}
-                    fill={i < Math.floor(product.rating) ? 'currentColor' : 'none'}
-                    className={i < Math.floor(product.rating) ? '' : 'text-gray-300'}
-                  />
-                ))}
-              </div>
-              <span className="text-lg font-bold text-gray-900">{product.rating}</span>
-              <span className="text-gray-500">({product.reviewCount} reviews)</span>
+            {/* Rating - Interactive */}
+            <div className="mb-6">
+              <ProductRating
+                productId={product.id}
+                currentRating={currentRating}
+                ratingCount={currentRatingCount}
+                userRating={product.userRating || undefined} // Pass user's rating (handle null)
+                onRatingSubmitted={(newRating, newCount) => {
+                  setCurrentRating(newRating);
+                  setCurrentRatingCount(newCount);
+                }}
+                size="medium"
+                showCount={true}
+                interactive={true}
+                showUserRating={true} // Show "You rated" message on detail page
+              />
             </div>
 
             {/* Price */}

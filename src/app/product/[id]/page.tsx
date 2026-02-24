@@ -23,6 +23,7 @@ interface APIProduct {
   badge?: string | null;
   star_rating: number;
   rating_count: number;
+  user_rating?: number | null; // Add user_rating
   category: string;
   tags: string[];
   images: ProductImage[];
@@ -35,6 +36,7 @@ interface Product {
   price: number;
   rating: number;
   reviewCount: number;
+  userRating?: number | null; // Add user_rating
   images: string[];
   badge?: string;
   colors?: string[];
@@ -77,6 +79,7 @@ async function fetchProduct(id: string, lang: string = 'en'): Promise<Product | 
       stock: data.stock,
       rating: data.star_rating || 0,
       reviewCount: data.rating_count || 0,
+      userRating: data.user_rating || null, // Add user_rating
       badge: data.badge || undefined,
       category: data.category,
       tags: data.tags || [],

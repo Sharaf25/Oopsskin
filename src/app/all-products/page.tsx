@@ -7,6 +7,7 @@ import { useAuth } from '@/app/context/AuthContext';
 import { useLanguage } from '@/app/context/LanguageContext';
 import { API_ENDPOINTS, API_BASE_URL } from '@/config/api';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import ProductRating from '@/app/components/ProductRating';
 import Link from 'next/link';
 
 // Product interface from new API (actual response structure)
@@ -17,13 +18,12 @@ interface Product {
   before_price?: number | null;
   badge?: string | null;
   star_rating: number;
+  user_rating?: number | null;
   stock: number;
   featured_image: string;
   category: string;
   tags: string[];
   // Optional computed fields
-  rating?: number;
-  reviewCount?: number;
   colors?: string[];
 }
 
@@ -123,11 +123,9 @@ function AllProductsContent() {
       if (data && data.data && Array.isArray(data.data)) {
         console.log('✅ Valid data structure, processing products...');
         
-        // Add computed fields for UI enhancement
+        // Use real rating data from API, add only colors for UI
         const enhancedProducts = data.data.map((product: Product) => ({
           ...product,
-          rating: product.star_rating || (4 + Math.random() * 1),
-          reviewCount: Math.floor(Math.random() * 100) + 10,
           colors: ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E'].slice(0, Math.floor(Math.random() * 4) + 2),
         }));
         
@@ -537,21 +535,27 @@ function AllProductsContent() {
                         </div>
                       )}
 
-                      {/* Rating */}
-                      {product.rating && (
-                        <div className="flex items-center gap-2 mb-4">
-                          <div className="flex text-pink-500">
-                            {[...Array(5)].map((_, i) => (
-                              <span key={i} className="text-lg">
-                                {i < Math.floor(product.rating!) ? '★' : '☆'}
-                              </span>
-                            ))}
-                          </div>
-                          <span className="text-sm text-gray-700 font-medium">
-                            {product.rating.toFixed(1)} ({product.reviewCount})
-                          </span>
-                        </div>
-                      )}
+                      {/* Rating - Interactive */}
+                      <div className="mb-4">
+                        <ProductRating
+                          productId={product.id}
+                          currentRating={product.star_rating || 0}
+                          ratingCount={0}
+                          userRating={product.user_rating || undefined}
+                          onRatingSubmitted={(newRating, newCount) => {
+                            // Update the product in the list with new rating
+                            setProducts(prev => prev.map(p => 
+                              p.id === product.id 
+                                ? { ...p, star_rating: newRating }
+                                : p
+                            ));
+                          }}
+                          size="small"
+                          showCount={false}
+                          interactive={true}
+                          showUserRating={false}
+                        />
+                      </div>
 
                       {/* Add to Cart Button */}
                       <button 

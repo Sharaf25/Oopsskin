@@ -24,6 +24,8 @@ export const API_ENDPOINTS = {
     // Paginated endpoint with language support
     PAGINATED: (lang: string = 'en', page: number = 1, limit: number = 10) => 
       `${API_BASE_URL}/products?lang=${lang}&page=${page}&limit=${limit}`,
+    // Rating endpoint
+    RATE: (id: number | string) => `${API_BASE_URL}/products/${id}/rating`,
   },
   
   // Orders

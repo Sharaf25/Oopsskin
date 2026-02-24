@@ -26,6 +26,7 @@ interface APIProduct {
   badge?: string | null;
   star_rating: number;
   rating_count: number;
+  user_rating?: number | null; // Add user_rating
   category: string;
   tags: string[];
   images: ProductImage[];
@@ -38,6 +39,7 @@ interface Product {
   price: number;
   rating: number;
   reviewCount: number;
+  userRating?: number | null; // Add user rating
   images: string[];
   badge?: string;
   colors?: string[];
@@ -95,6 +97,7 @@ export default function ProductDetailWrapper({
           stock: data.stock,
           rating: data.star_rating || 0,
           reviewCount: data.rating_count || 0,
+          userRating: data.user_rating || null, // Add user rating
           badge: data.badge || undefined,
           category: data.category,
           tags: data.tags || [],

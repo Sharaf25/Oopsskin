@@ -7,6 +7,7 @@ import { useCart } from '@/app/context/CartContext';
 import { useAuth } from '@/app/context/AuthContext';
 import { useLanguage } from '@/app/context/LanguageContext';
 import { API_ENDPOINTS, API_BASE_URL } from '@/config/api';
+import ProductRating from '@/app/components/ProductRating';
 import Link from 'next/link';
 
 interface Product {
@@ -15,8 +16,8 @@ interface Product {
   description?: string;
   price: number;
   item_img: string;
-  rating?: number;
-  reviewCount?: number;
+  star_rating?: number;
+  user_rating?: number;
   badge?: string;
   colors?: string[];
 }
@@ -90,8 +91,8 @@ export function ProductCarousel() {
               ? item.featured_image 
               : `${API_BASE_URL.replace('/api', '')}/${item.featured_image}`
             : 'https://via.placeholder.com/400x400?text=Product',
-          rating: 4.5 + Math.random() * 0.5,
-          reviewCount: Math.floor(Math.random() * 100) + 10,
+          star_rating: item.star_rating || 0,
+          user_rating: item.user_rating || 0,
           badge: item.badge || badges[index % badges.length] || undefined,
           colors: colorSets[index % colorSets.length],
         }));
@@ -247,21 +248,27 @@ export function ProductCarousel() {
                     </div>
                   )}
 
-                  {/* Rating */}
-                  {product.rating && (
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="flex text-pink-500">
-                        {[...Array(5)].map((_, i) => (
-                          <span key={i} className="text-lg">
-                            {i < Math.floor(product.rating!) ? '★' : '☆'}
-                          </span>
-                        ))}
-                      </div>
-                      <span className="text-sm text-gray-700 font-medium">
-                        {product.rating.toFixed(1)} ({product.reviewCount})
-                      </span>
-                    </div>
-                  )}
+                  {/* Rating - Interactive */}
+                  <div className="mb-4">
+                    <ProductRating
+                      productId={product.id}
+                      currentRating={product.star_rating || 0}
+                      ratingCount={0}
+                      userRating={product.user_rating}
+                      onRatingSubmitted={(newRating, newCount) => {
+                        // Update the product in the carousel with new rating
+                        setProducts(prev => prev.map(p => 
+                          p.id === product.id 
+                            ? { ...p, star_rating: newRating }
+                            : p
+                        ));
+                      }}
+                      size="small"
+                      showCount={false}
+                      interactive={true}
+                      showUserRating={false} // Don't show "You rated" on carousel
+                    />
+                  </div>
 
                   {/* Add to Cart Button */}
                   <button 
