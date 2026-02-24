@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '@/app/context/CartContext';
 import { useAuth } from '@/app/context/AuthContext';
 import { useLanguage } from '@/app/context/LanguageContext';
-import { API_ENDPOINTS } from '@/config/api';
+import { API_ENDPOINTS, API_BASE_URL } from '@/config/api';
 import Link from 'next/link';
 
 interface Product {
@@ -85,10 +85,14 @@ export function ProductCarousel() {
           name: item.name,
           description: item.name_e || '',
           price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
-          item_img: item.item_img,
+          item_img: item.featured_image 
+            ? item.featured_image.startsWith('http') 
+              ? item.featured_image 
+              : `${API_BASE_URL.replace('/api', '')}/${item.featured_image}`
+            : 'https://via.placeholder.com/400x400?text=Product',
           rating: 4.5 + Math.random() * 0.5,
           reviewCount: Math.floor(Math.random() * 100) + 10,
-          badge: badges[index % badges.length] || undefined,
+          badge: item.badge || badges[index % badges.length] || undefined,
           colors: colorSets[index % colorSets.length],
         }));
         setProducts(transformedProducts);
