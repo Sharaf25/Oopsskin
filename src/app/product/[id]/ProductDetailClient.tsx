@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Star, Gift, Plus, Minus } from 'lucide-react';
 import { useCart } from '@/app/context/CartContext';
 import { useAuth } from '@/app/context/AuthContext';
-import { useLanguage } from '@/app/context/LanguageContext';
 import Link from 'next/link';
 
 interface Product {
@@ -13,6 +12,8 @@ interface Product {
   name: string;
   description: string;
   price: number;
+  before_price?: number;
+  stock?: number;
   rating: number;
   reviewCount: number;
   images: string[];
@@ -21,20 +22,34 @@ interface Product {
   category?: string;
   dimensions?: string;
   features?: string[];
+  tags?: string[];
 }
 
-export default function ProductDetailClient({ product, relatedProducts }: { product: Product; relatedProducts: any[] }) {
+export default function ProductDetailClient({ 
+  product: initialProduct, 
+  relatedProducts: initialRelatedProducts 
+}: { 
+  product: Product; 
+  relatedProducts: any[] 
+}) {
   const router = useRouter();
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
-  const { t } = useLanguage();
 
+  const [product, setProduct] = useState<Product>(initialProduct);
+  const [relatedProducts, setRelatedProducts] = useState(initialRelatedProducts);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [showProductInfo, setShowProductInfo] = useState(false);
 
+  // Update local state when props change (due to language switch in parent)
   useEffect(() => {
-    setSelectedImage(0);
+    setProduct(initialProduct);
+    setRelatedProducts(initialRelatedProducts);
+    setSelectedImage(0); // Reset to first image when product changes
+  }, [initialProduct, initialRelatedProducts]);
+
+  useEffect(() => {
     setQuantity(1);
   }, [product?.id]);
 
@@ -146,7 +161,28 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
 
             {/* Price */}
             <div className="mb-6">
-              <span className="text-4xl font-black text-gray-900">${product.price.toFixed(2)}</span>
+              {product.before_price && product.before_price > product.price && (
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-xl text-gray-400 line-through">${product.before_price.toFixed(2)}</span>
+                  <span className="bg-red-100 text-red-600 text-sm font-bold px-3 py-1 rounded-full">
+                    SAVE ${(product.before_price - product.price).toFixed(2)}
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center gap-4">
+                <span className="text-4xl font-black text-gray-900">${product.price.toFixed(2)}</span>
+                {product.stock !== undefined && (
+                  <span className={`text-sm font-bold px-3 py-1 rounded-full ${
+                    product.stock > 10 
+                      ? 'bg-green-100 text-green-600' 
+                      : product.stock > 0 
+                      ? 'bg-yellow-100 text-yellow-600' 
+                      : 'bg-red-100 text-red-600'
+                  }`}>
+                    {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Color Swatches */}
@@ -215,13 +251,42 @@ export default function ProductDetailClient({ product, relatedProducts }: { prod
               </button>
 
               {showProductInfo && (
-                <div className="mt-4 space-y-3 text-gray-600">
-                  {product.features && product.features.map((feature, idx) => (
-                    <p key={idx} className="flex items-start gap-2">
-                      <span className="text-pink-500 mt-1">•</span>
-                      <span>{feature}</span>
+                <div className="mt-4 space-y-4">
+                  {/* Tags */}
+                  {product.tags && product.tags.length > 0 && (
+                    <div>
+                      <p className="font-bold text-gray-900 mb-2">Tags:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {product.tags.map((tag, idx) => (
+                          <span
+                            key={idx}
+                            className="bg-pink-100 text-pink-600 text-sm font-medium px-3 py-1 rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Features */}
+                  {product.features && product.features.length > 0 && (
+                    <div className="space-y-2 text-gray-600">
+                      {product.features.map((feature, idx) => (
+                        <p key={idx} className="flex items-start gap-2">
+                          <span className="text-pink-500 mt-1">•</span>
+                          <span>{feature}</span>
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Category */}
+                  {product.category && (
+                    <p className="text-gray-600">
+                      <span className="font-bold text-gray-900">Category:</span> {product.category}
                     </p>
-                  ))}
+                  )}
                 </div>
               )}
             </div>
