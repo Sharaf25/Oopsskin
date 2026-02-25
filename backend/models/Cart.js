@@ -6,10 +6,14 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Cart.associate = (models) => {
-    Cart.belongsTo(models.User, { foreignKey: "user_id" });
+    Cart.belongsTo(models.User, {
+      foreignKey: { name: "user_id", allowNull: false },
+      onDelete: "CASCADE",
+    });
+
     Cart.hasMany(models.CartItem, {
       foreignKey: "cart_id",
-      as: "items", // give it an alias
+      as: "items",
       onDelete: "CASCADE",
     });
   };

@@ -2,8 +2,8 @@ module.exports = (sequelize, DataTypes) => {
   const CartItem = sequelize.define(
     "CartItem",
     {
-      productId: {
-        type: DataTypes.STRING,
+      product_id: {
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       quantity: {
@@ -13,19 +13,25 @@ module.exports = (sequelize, DataTypes) => {
       },
       cart_id: {
         type: DataTypes.INTEGER,
-        allowNull: false, // link to Cart
+        allowNull: false,
       },
     },
     {
       tableName: "cart_items",
       timestamps: true,
-    }
+    },
   );
 
   CartItem.associate = (models) => {
     CartItem.belongsTo(models.Cart, {
       foreignKey: "cart_id",
       as: "cart",
+    });
+
+    CartItem.belongsTo(models.Product, {
+      foreignKey: "product_id",
+      as: "product",
+      onDelete: "CASCADE",
     });
   };
 

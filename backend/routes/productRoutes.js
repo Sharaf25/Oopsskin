@@ -5,9 +5,12 @@ const {
   ensureAuthenticated,
   authorize,
 } = require("../middleware/authMiddleware");
+const optionalAuth = require("../middleware/optionalAuth"); // 🔥 new
 const controller = require("../controllers/productControllers");
 
-// Admin
+// ----------------------
+// Admin Routes
+// ----------------------
 router.post(
   "/admin/add",
   ensureAuthenticated,
@@ -30,19 +33,25 @@ router.delete(
   authorize(["admin"]),
   controller.deleteProduct,
 );
+
 router.delete(
   "/image/:imageId",
   ensureAuthenticated,
   authorize(["admin"]),
   controller.deleteProductImage,
 );
+
 router.post("/:id/rating", ensureAuthenticated, controller.addStarRating);
 
-// Public
-router.get("/", controller.getProducts);
-router.get("/:id", controller.getProductDetails);
+// ----------------------
+// Public Routes (Optional Auth)
+// ----------------------
+router.get("/", optionalAuth, controller.getProducts); // 🔥 optionalAuth added
+router.get("/:id", optionalAuth, controller.getProductDetails); // 🔥 optionalAuth added
 
-// User rating
+// ----------------------
+// User Rating
+// ----------------------
 router.post("/:id/rate", ensureAuthenticated, controller.addStarRating);
 
 module.exports = router;
