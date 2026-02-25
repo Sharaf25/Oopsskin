@@ -30,12 +30,12 @@ export function ProductCarousel() {
   const [isAnimating, setIsAnimating] = useState(false);
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage(); // Get language from context
 
   // Fetch best sellers from API
   useEffect(() => {
     fetchBestSellers();
-  }, []);
+  }, [language]); // Re-fetch when language changes
 
   const handlePrevious = useCallback(() => {
     if (isAnimating) return;
@@ -65,7 +65,8 @@ export function ProductCarousel() {
   const fetchBestSellers = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_ENDPOINTS.PRODUCTS.BASE}?sort=asc&limit=6`);
+      // Add language parameter to API call
+      const response = await fetch(`${API_ENDPOINTS.PRODUCTS.BASE}?lang=${language}&sort=asc&limit=6`);
       
       if (response.ok) {
         const data = await response.json();
@@ -83,7 +84,7 @@ export function ProductCarousel() {
         
         const transformedProducts: Product[] = data.data.slice(0, 6).map((item: any, index: number) => ({
           id: item.id,
-          name: item.name,
+          name: item.name, // API returns correct language based on lang parameter
           description: item.name_e || '',
           price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
           item_img: item.featured_image 
