@@ -51,15 +51,9 @@ interface Product {
 // Fetch product from API
 async function fetchProduct(id: string, lang: string = 'en'): Promise<Product | null> {
   try {
-    console.log(`🔍 Fetching product ${id} with language ${lang}`);
-    console.log(`📡 URL: ${API_ENDPOINTS.PRODUCTS.BY_ID(id)}?lang=${lang}`);
-    
     const response = await fetch(`${API_ENDPOINTS.PRODUCTS.BY_ID(id)}?lang=${lang}`, {
-      cache: 'no-store',
-      next: { revalidate: 0 },
+      cache: 'force-cache',
     });
-
-    console.log(`📊 Response status:`, response.status);
 
     if (!response.ok) {
       console.error(`❌ Failed to fetch product ${id}:`, response.status);
@@ -67,8 +61,7 @@ async function fetchProduct(id: string, lang: string = 'en'): Promise<Product | 
     }
 
     const data: APIProduct = await response.json();
-    console.log(`✅ Product data received:`, data);
-    
+
     // Transform API response to match Product interface
     const product: Product = {
       id: data.id.toString(),
@@ -83,16 +76,15 @@ async function fetchProduct(id: string, lang: string = 'en'): Promise<Product | 
       badge: data.badge || undefined,
       category: data.category,
       tags: data.tags || [],
-      images: data.images.map((img) => 
-        img.image_url.startsWith('http') 
-          ? img.image_url 
+      images: data.images.map((img) =>
+        img.image_url.startsWith('http')
+          ? img.image_url
           : `${API_BASE_URL.replace('/api', '')}/${img.image_url}`
       ),
       colors: ['#FF1493', '#FF69B4', '#FFB6C1', '#FFC0CB'], // Pink shades
       features: data.tags || [],
     };
-    
-    console.log(`✅ Transformed product:`, product);
+
     return product;
   } catch (error) {
     console.error('❌ Error fetching product:', error);
@@ -104,7 +96,7 @@ async function fetchProduct(id: string, lang: string = 'en'): Promise<Product | 
 async function fetchRelatedProducts(lang: string = 'en') {
   try {
     const response = await fetch(`${API_ENDPOINTS.PRODUCTS.BASE}?lang=${lang}&limit=4&sort=asc`, {
-      cache: 'no-store',
+      cache: 'force-cache',
     });
 
     if (!response.ok) {
@@ -112,7 +104,7 @@ async function fetchRelatedProducts(lang: string = 'en') {
     }
 
     const data = await response.json();
-    
+
     return data.data.map((item: any) => ({
       id: item.id.toString(),
       name: item.name,
@@ -120,9 +112,9 @@ async function fetchRelatedProducts(lang: string = 'en') {
       price: item.price,
       rating: item.star_rating || 4.5,
       reviewCount: Math.floor(Math.random() * 100) + 10,
-      image: item.featured_image 
-        ? item.featured_image.startsWith('http') 
-          ? item.featured_image 
+      image: item.featured_image
+        ? item.featured_image.startsWith('http')
+          ? item.featured_image
           : `${API_BASE_URL.replace('/api', '')}/${item.featured_image}`
         : 'https://via.placeholder.com/400x400?text=Product',
       badge: item.badge || undefined,
@@ -134,104 +126,48 @@ async function fetchRelatedProducts(lang: string = 'en') {
   }
 }
 
-// Mock data - used as fallback if API fails
-const getMockProduct = (id: string): Product => ({
-  id: id,
-  name: `Product ${id} — LARGE VANITY BAG`,
-  description: 'The ultimate Power Pink vanity that fits all your favs. ● H: 23.5 cm X W 26 cm X D 9.5 cm',
-  price: 59.0,
-  rating: 4.9,
-  reviewCount: 234,
-  badge: 'NEW',
-  category: 'VIP Access Week',
-  dimensions: 'H: 23.5 cm X W 26 cm X D 9.5 cm',
-  images: [
-    'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=800&fit=crop',
-    'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?w=800&h=800&fit=crop',
-    'https://cdn.britannica.com/35/222035-050-C68AD682/makeup-cosmetics.jpg',
-  ],
-  colors: ['#FF1493', '#FF69B4', '#FFB6C1', '#FFC0CB'],
-  features: [
-    'Premium quality materials',
-    'Multiple compartments',
-    'Easy to clean',
-    'Zipper closure',
-    'Perfect gift for makeup lovers',
-  ],
-});
+// Tell Next.js not to try to render any path beyond what generateStaticParams returns
+export const dynamicParams = false;
 
-const getRelatedProducts = () => [
-  {
-    id: '2',
-    name: 'بودر نصر كم',
-    description: 'Super fine pressed powder for flawless finish',
-    price: 25.0,
-    rating: 5.0,
-    reviewCount: 45,
-    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&h=400&fit=crop',
-    badge: 'BESTSELLER',
-    colors: ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E', '#8B4513'],
-  },
-  {
-    id: '3',
-    name: 'لادي نص كم',
-    description: 'Premium makeup setting spray',
-    price: 25.0,
-    rating: 4.9,
-    reviewCount: 89,
-    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop',
-    colors: ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E'],
-  },
-  {
-    id: '4',
-    name: 'روج مطفي',
-    description: 'Long-lasting matte lipstick',
-    price: 25.0,
-    rating: 5.0,
-    reviewCount: 156,
-    image: 'https://cdn.britannica.com/35/222035-050-C68AD682/makeup-cosmetics.jpg',
-    badge: 'EXCLUSIVE',
-    colors: ['#FFE4E1', '#F5DEB3', '#DEB887'],
-  },
-  {
-    id: '5',
-    name: 'ماسكارا فاخرة',
-    description: 'Volumizing mascara for dramatic lashes',
-    price: 25.0,
-    rating: 4.8,
-    reviewCount: 67,
-    image: 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?w=400&h=400&fit=crop',
-    colors: ['#000000', '#8B4513'],
-  },
-];
+// ✅ Generate static params for pre-rendering — English only, no URL changes
+export async function generateStaticParams(): Promise<{ id: string }[]> {
+  // Use the build-time API URL from the environment
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-// Generate static params for pre-rendering
-export async function generateStaticParams() {
-  // Pre-render product pages 1-20 at build time
-  return Array.from({ length: 20 }, (_, i) => ({
-    id: (i + 1).toString(),
-  }));
+  const response = await fetch(`${apiBase}/products?limit=100`, {
+    // no-store ensures fresh data at every build rather than a stale cache
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    // Throw so the build fails loudly instead of silently producing no pages
+    throw new Error(
+      `generateStaticParams: failed to fetch products (HTTP ${response.status}). ` +
+      'Ensure the API server is running and NEXT_PUBLIC_API_URL is set correctly.'
+    );
+  }
+
+  const data = await response.json();
+  const products: { id: number | string }[] = data.data ?? [];
+
+  return products.map((product) => ({ id: product.id.toString() }));
 }
 
-export default async function ProductDetailPage({ 
+export default async function ProductDetailPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ lang?: string }>;
 }) {
   // Await params in Next.js 15+
   const resolvedParams = await params;
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  
-  const productId = resolvedParams.id;
-  const lang = resolvedSearchParams?.lang || 'en';
 
-  console.log(`🔄 Loading product ${productId} in ${lang}`);
-  
+  const productId = resolvedParams.id;
+  // English only — the client-side LanguageContext handles runtime language switching
+  const lang = 'en';
+
   // Fetch product from API
   const product = await fetchProduct(productId, lang);
-  
+
   if (!product) {
     return (
       <div className="min-h-screen bg-gray-50 pt-20">
@@ -247,11 +183,9 @@ export default async function ProductDetailPage({
       </div>
     );
   }
-  
+
   // Fetch related products
   const relatedProducts = await fetchRelatedProducts(lang);
-  
-  console.log(`✅ Product loaded successfully:`, product.name);
 
   return (
     <div className="min-h-screen bg-gray-50">
