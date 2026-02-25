@@ -187,14 +187,14 @@ export default function VouchersPage() {
                 placeholder="Search vouchers..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                className="input-field pl-10"
               />
             </div>
             
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as any)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              className="select-field"
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
@@ -207,7 +207,7 @@ export default function VouchersPage() {
               setEditingVoucher(null);
               setShowAddModal(true);
             }}
-            className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors w-full md:w-auto justify-center"
+            className="btn-primary flex items-center gap-2 w-full md:w-auto justify-center"
           >
             <Plus size={20} />
             Add New Voucher
@@ -219,7 +219,7 @@ export default function VouchersPage() {
       <div className="bg-white rounded-lg shadow overflow-hidden">
         {loading ? (
           <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto"></div>
+            <div className="spinner h-12 w-12 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading vouchers...</p>
           </div>
         ) : (
@@ -278,11 +278,7 @@ export default function VouchersPage() {
                         {voucher.expiry_date ? new Date(voucher.expiry_date).toLocaleDateString() : 'No expiry'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                          voucher.status === 'active' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
+                        <span className={`badge-${voucher.status === 'active' ? 'active' : 'inactive'}`}>
                           {voucher.status}
                         </span>
                       </td>
@@ -421,7 +417,7 @@ function VoucherModal({
                 required
                 value={formData.code}
                 onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                className="input-field"
                 placeholder="SAVE20"
               />
             </div>
@@ -433,7 +429,7 @@ function VoucherModal({
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                className="select-field w-full"
               >
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
@@ -450,7 +446,7 @@ function VoucherModal({
               required
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              className="input-field"
               placeholder="20% off on all products"
             />
           </div>
@@ -463,7 +459,7 @@ function VoucherModal({
               type="text"
               value={formData.description_ar}
               onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              className="input-field"
               placeholder="خصم 20% على جميع المنتجات"
             />
           </div>
@@ -476,7 +472,7 @@ function VoucherModal({
               <select
                 value={formData.discount_type}
                 onChange={(e) => setFormData({ ...formData, discount_type: e.target.value as any })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                className="select-field w-full"
               >
                 <option value="percentage">Percentage (%)</option>
                 <option value="fixed">Fixed Amount ($)</option>
@@ -494,7 +490,7 @@ function VoucherModal({
                 step="0.01"
                 value={formData.discount_value}
                 onChange={(e) => setFormData({ ...formData, discount_value: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                className="input-field"
                 placeholder={formData.discount_type === 'percentage' ? '20' : '10.00'}
               />
             </div>
@@ -511,7 +507,7 @@ function VoucherModal({
                 step="0.01"
                 value={formData.minimum_purchase}
                 onChange={(e) => setFormData({ ...formData, minimum_purchase: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                className="input-field"
                 placeholder="50.00"
               />
             </div>
@@ -526,7 +522,7 @@ function VoucherModal({
                 step="0.01"
                 value={formData.maximum_discount}
                 onChange={(e) => setFormData({ ...formData, maximum_discount: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                className="input-field"
                 placeholder="100.00"
               />
             </div>
@@ -542,7 +538,7 @@ function VoucherModal({
                 min="0"
                 value={formData.usage_limit}
                 onChange={(e) => setFormData({ ...formData, usage_limit: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                className="input-field"
                 placeholder="100"
               />
             </div>
@@ -555,7 +551,7 @@ function VoucherModal({
                 type="date"
                 value={formData.expiry_date}
                 onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                className="input-field"
               />
             </div>
           </div>
@@ -564,14 +560,14 @@ function VoucherModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="btn-outline flex-1"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-pink-500 hover:bg-pink-600 text-white px-6 py-2 rounded-lg transition-colors disabled:opacity-50"
+              className="btn-primary flex-1 disabled:opacity-50"
             >
               {loading ? 'Saving...' : (voucher ? 'Update Voucher' : 'Create Voucher')}
             </button>
