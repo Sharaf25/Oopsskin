@@ -97,6 +97,8 @@ function AllProductsContent() {
         // Use real rating data from API, add only colors for UI
         const enhancedProducts = data.data.map((product: Product) => ({
           ...product,
+          price: parseFloat(product.price as unknown as string) || 0,
+          before_price: product.before_price != null ? parseFloat(product.before_price as unknown as string) : null,
           colors: ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E'].slice(0, Math.floor(Math.random() * 4) + 2),
         }));
         

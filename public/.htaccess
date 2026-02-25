@@ -1,29 +1,41 @@
-# Enable rewrite engine
+Options -Indexes
+
 RewriteEngine On
 
-# Redirect to HTTPS (optional, uncomment if you want to force HTTPS)
-# RewriteCond %{HTTPS} off
-# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# Handle trailing slashes (Force them for Next.js consistency)
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_URI} !(.*)/$
-RewriteRule ^(.*)$ $1/ [L,R=301]
+# Serve _next static assets directly (no rewriting needed)
+RewriteRule ^_next/(.*)$ _next/$1 [L]
 
-# Serve static files (Try to serve the HTML file if it exists)
-RewriteCond %{REQUEST_FILENAME} !-f
+# If request is for an existing file, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# If request is for an existing directory with index.html, serve it
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteCond %{REQUEST_FILENAME}/index.html -f
+RewriteRule ^(.+[^/])/?$ $1/index.html [L]
+
+# Add trailing slash if missing (and it's not a file)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !/$
+RewriteRule ^(.*)$ %{REQUEST_URI}/ [L,R=301]
+
+# For trailing-slash URLs: serve the directory's index.html
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_FILENAME}index.html -f
 RewriteRule ^(.*)/$ $1/index.html [L]
 
-# Fallback to index.html for SPA routing
+# 404 fallback — serve Next.js 404 page
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ /index.html [L]
+RewriteRule ^ /404.html [L]
 
 # Enable gzip compression
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json image/svg+xml
 </IfModule>
 
 # Browser caching
@@ -33,8 +45,19 @@ RewriteRule ^ /index.html [L]
   ExpiresByType image/jpeg "access plus 1 year"
   ExpiresByType image/gif "access plus 1 year"
   ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
   ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/x-icon "access plus 1 year"
   ExpiresByType text/css "access plus 1 month"
   ExpiresByType application/javascript "access plus 1 month"
   ExpiresByType text/javascript "access plus 1 month"
+  ExpiresByType application/json "access plus 0 seconds"
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>

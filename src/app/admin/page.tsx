@@ -77,7 +77,7 @@ export default function AdminDashboard() {
       
       setError('');
     } catch (err) {
-      setError('Failed to load dashboard data. Make sure the backend server is running.');
+      setError('Failed to load dashboard data.');
     } finally {
       setLoading(false);
     }
@@ -100,7 +100,7 @@ export default function AdminDashboard() {
     },
     {
       title: 'Total Revenue',
-      value: `$${stats.totalRevenue.toFixed(2)}`,
+      value: `$${parseFloat(stats.totalRevenue as unknown as string).toFixed(2)}`,
       icon: DollarSign,
       color: 'bg-purple-500',
       link: '/admin/orders'
@@ -232,7 +232,7 @@ export default function AdminDashboard() {
                       {order.customer_name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-semibold">
-                      ${order.total.toFixed(2)}
+                      ${parseFloat(order.total as unknown as string).toFixed(2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>

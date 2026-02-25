@@ -147,7 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error: any) {
       return {
         success: false,
-        error: error.message || 'Network error. Please check your connection and ensure the backend server is running on port 5000.',
+        error: error.message || 'Network error. Please check your connection.',
       };
     }
   };
@@ -201,7 +201,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       return {
         success: false,
-        error: 'Network error. Please check your connection and ensure the backend server is running on port 5000.',
+        error: 'Network error. Please check your connection.',
       };
     }
   };

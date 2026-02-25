@@ -44,7 +44,7 @@ export default function ProductsPage() {
         setError('');
       }
     } catch (err) {
-      setError('Failed to load products. Make sure the backend server is running.');
+      setError('Failed to load products.');
     } finally {
       setLoading(false);
     }
@@ -205,7 +205,7 @@ export default function ProductsPage() {
                       {product.category}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                      ${product.price.toFixed(2)}
+                      ${parseFloat(product.price as unknown as string).toFixed(2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {product.stock_quantity}

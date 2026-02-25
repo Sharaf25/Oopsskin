@@ -66,8 +66,8 @@ async function fetchProduct(id: string, lang: string = 'en'): Promise<Product | 
       id: data.id.toString(),
       name: data.name,
       description: data.details || '',
-      price: data.price,
-      before_price: data.before_price || undefined,
+      price: typeof data.price === 'string' ? parseFloat(data.price) : data.price,
+      before_price: data.before_price != null ? (typeof data.before_price === 'string' ? parseFloat(data.before_price) : data.before_price) : undefined,
       stock: data.stock,
       rating: data.star_rating || 0,
       reviewCount: data.rating_count || 0,
@@ -107,7 +107,7 @@ async function fetchRelatedProducts(lang: string = 'en') {
       id: item.id.toString(),
       name: item.name,
       description: item.category || '',
-      price: item.price,
+      price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
       rating: item.star_rating || 4.5,
       reviewCount: Math.floor(Math.random() * 100) + 10,
       image: item.featured_image
@@ -129,7 +129,7 @@ export const dynamicParams = false;
 // ✅ Generate static params for pre-rendering — English only, no URL changes
 export async function generateStaticParams(): Promise<{ id: string }[]> {
   // Use the build-time API URL from the environment
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'https://oopsskin.ps/api';
 
   const response = await fetch(`${apiBase}/products?limit=100`, {
     // no-store ensures fresh data at every build rather than a stale cache

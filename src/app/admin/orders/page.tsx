@@ -45,7 +45,7 @@ export default function OrdersPage() {
         setError('');
       }
     } catch (err) {
-      setError('Failed to load orders. Make sure the backend server is running.');
+      setError('Failed to load orders.');
     } finally {
       setLoading(false);
     }
@@ -225,7 +225,7 @@ export default function OrdersPage() {
                       <div className="text-gray-500">{order.customer_phone}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                      ${order.total.toFixed(2)}
+                      ${parseFloat(order.total as unknown as string).toFixed(2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {order.payment_method}
