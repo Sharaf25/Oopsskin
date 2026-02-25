@@ -2,6 +2,7 @@
 
 import { useCart } from '@/app/context/CartContext';
 import { useAuth } from '@/app/context/AuthContext';
+import { useLanguage } from '@/app/context/LanguageContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, Lock } from 'lucide-react';
@@ -11,6 +12,7 @@ export default function CartPage() {
   const router = useRouter();
   const { cart, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
   const { isAuthenticated, user } = useAuth();
+  const { t } = useLanguage();
   const [showCheckout, setShowCheckout] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [voucherCode, setVoucherCode] = useState('');
@@ -38,22 +40,22 @@ export default function CartPage() {
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto text-center bg-white rounded-2xl shadow-xl p-12">
             <Lock className="mx-auto mb-6 text-pink-500" size={80} />
-            <h1 className="text-4xl font-black text-gray-900 mb-4">SIGN IN REQUIRED</h1>
+            <h1 className="text-4xl font-black text-gray-900 mb-4">{t('signInRequired')}</h1>
             <p className="text-gray-600 mb-8">
-              Please sign in to your account to view your cart and proceed with checkout
+              {t('signInToViewCart')}
             </p>
             <div className="flex gap-4 justify-center">
               <Link
                 href="/login"
                 className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-8 rounded-full uppercase text-sm transition-all transform hover:scale-105"
               >
-                SIGN IN
+                {t('signIn').toUpperCase()}
               </Link>
               <Link
                 href="/register"
                 className="bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold py-4 px-8 rounded-full uppercase text-sm transition-all"
               >
-                CREATE ACCOUNT
+                {t('createAccount').toUpperCase()}
               </Link>
             </div>
           </div>
@@ -88,7 +90,7 @@ export default function CartPage() {
   // Apply voucher function
   const applyVoucher = async () => {
     if (!voucherCode.trim()) {
-      setVoucherError('Please enter a voucher code');
+      setVoucherError(t('enterVoucherCode'));
       return;
     }
 
@@ -102,7 +104,7 @@ export default function CartPage() {
       if (data.success) {
         // Check minimum order requirement
         if (data.voucher.min_order_amount && subtotal < data.voucher.min_order_amount) {
-          setVoucherError(`Minimum order amount of $${data.voucher.min_order_amount} required`);
+          setVoucherError(`${t('minimumOrderAmount')}${data.voucher.min_order_amount}${t('required')}`);
           setIsApplyingVoucher(false);
           return;
         }
@@ -110,11 +112,11 @@ export default function CartPage() {
         setAppliedVoucher(data.voucher);
         setVoucherError('');
       } else {
-        setVoucherError(data.message || 'Invalid voucher code');
+        setVoucherError(data.message || t('invalidVoucher'));
         setAppliedVoucher(null);
       }
     } catch (error) {
-      setVoucherError('Failed to apply voucher. Please try again.');
+      setVoucherError(t('failedToApplyVoucher'));
       setAppliedVoucher(null);
     }
 
@@ -134,15 +136,15 @@ export default function CartPage() {
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto text-center">
             <ShoppingBag className="mx-auto mb-6 text-gray-400" size={80} />
-            <h1 className="text-4xl font-black text-gray-900 mb-4">YOUR CART IS EMPTY</h1>
+            <h1 className="text-4xl font-black text-gray-900 mb-4">{t('yourCartIsEmpty')}</h1>
             <p className="text-gray-600 mb-8">
-              Looks like you haven&apos;t added anything to your cart yet
+              {t('notAddedYet')}
             </p>
             <Link
               href="/all-products"
               className="inline-block bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-8 rounded-full uppercase text-sm transition-all transform hover:scale-105"
             >
-              START SHOPPING
+              {t('startShopping')}
             </Link>
           </div>
         </div>
@@ -161,16 +163,16 @@ export default function CartPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-4xl md:text-5xl font-black text-gray-900 uppercase">
-              Shopping Cart
+              {t('shoppingCart')}
             </h1>
-            <p className="text-gray-600 mt-2">{cart.length} items in your cart</p>
+            <p className="text-gray-600 mt-2">{cart.length} {t('itemsInCart')}</p>
           </div>
           <Link
             href="/all-products"
             className="flex items-center gap-2 text-pink-500 hover:text-pink-600 font-medium"
           >
             <ArrowLeft size={20} />
-            Continue Shopping
+            {t('continueShoppingButton')}
           </Link>
         </div>
 
@@ -255,7 +257,7 @@ export default function CartPage() {
 
                   {/* Item Total */}
                   <div className="md:text-right">
-                    <p className="text-sm text-gray-500 mb-1">Item Total</p>
+                    <p className="text-sm text-gray-500 mb-1">{t('itemTotal')}</p>
                     <p className="text-xl font-black text-gray-900">
                       ${(item.price * item.quantity).toFixed(2)}
                     </p>
@@ -270,7 +272,7 @@ export default function CartPage() {
                   className="text-red-500 hover:text-red-600 font-medium flex items-center gap-2"
                 >
                   <Trash2 size={18} />
-                  Clear Cart
+                  {t('clearCart')}
                 </button>
               </div>
             </div>
@@ -280,20 +282,20 @@ export default function CartPage() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-lg p-6 sticky top-24">
               <h2 className="text-2xl font-black text-gray-900 mb-6 uppercase">
-                Order Summary
+                {t('orderSummary')}
               </h2>
 
               {/* Voucher Input */}
               <div className="mb-6">
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Voucher Code
+                  {t('voucherCode')}
                 </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={voucherCode}
                     onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
-                    placeholder="Enter code"
+                    placeholder={t('enterCode')}
                     disabled={!!appliedVoucher}
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
@@ -302,7 +304,7 @@ export default function CartPage() {
                       onClick={removeVoucher}
                       className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg transition-colors"
                     >
-                      Remove
+                      {t('removeVoucher')}
                     </button>
                   ) : (
                     <button
@@ -310,7 +312,7 @@ export default function CartPage() {
                       disabled={isApplyingVoucher}
                       className="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-lg transition-colors disabled:opacity-50"
                     >
-                      {isApplyingVoucher ? '...' : 'Apply'}
+                      {isApplyingVoucher ? '...' : t('applyVoucher')}
                     </button>
                   )}
                 </div>
@@ -323,7 +325,7 @@ export default function CartPage() {
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      Voucher Applied: {appliedVoucher.code}
+                      {t('voucherApplied')}: {appliedVoucher.code}
                     </p>
                     <p className="text-green-600 text-xs mt-1">
                       {appliedVoucher.discount_type === 'percentage' 
@@ -336,34 +338,34 @@ export default function CartPage() {
 
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
+                  <span>{t('subtotal')}</span>
                   <span className="font-semibold">${subtotal.toFixed(2)}</span>
                 </div>
                 {appliedVoucher && discount > 0 && (
                   <div className="flex justify-between text-green-600">
-                    <span>Discount ({appliedVoucher.code})</span>
+                    <span>{t('discount')} ({appliedVoucher.code})</span>
                     <span className="font-semibold">-${discount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-gray-600">
-                  <span>Shipping</span>
+                  <span>{t('shipping')}</span>
                   <span className="font-semibold">
-                    {shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}
+                    {shipping === 0 ? t('free').toUpperCase() : `$${shipping.toFixed(2)}`}
                   </span>
                 </div>
                 {shipping === 0 && (
                   <p className="text-sm text-green-600 font-medium">
-                    🎉 You got free shipping!
+                    {t('freeShipping')}
                   </p>
                 )}
                 {subtotal < 100 && subtotal > 0 && (
                   <p className="text-sm text-pink-500 font-medium">
-                    Add ${(100 - subtotal).toFixed(2)} more for free shipping!
+                    {t('addMoreForFreeShipping')}{(100 - subtotal).toFixed(2)}{t('moreForFreeShipping')}
                   </p>
                 )}
                 <div className="border-t border-gray-200 pt-4">
                   <div className="flex justify-between text-gray-900 text-xl font-black">
-                    <span>Total</span>
+                    <span>{t('total')}</span>
                     <span>${total.toFixed(2)}</span>
                   </div>
                 </div>
@@ -373,23 +375,23 @@ export default function CartPage() {
                 onClick={() => setShowCheckout(true)}
                 className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-6 rounded-full uppercase text-sm transition-all transform hover:scale-105 mb-4"
               >
-                Proceed to Checkout
+                {t('proceedToCheckout')}
               </button>
 
               <Link
                 href="/all-products"
                 className="block w-full text-center bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold py-4 px-6 rounded-full uppercase text-sm transition-all"
               >
-                Continue Shopping
+                {t('continueShoppingButton')}
               </Link>
 
               {/* Payment Info */}
               <div className="mt-6 p-4 bg-pink-50 rounded-lg">
                 <p className="text-sm text-gray-700 font-medium mb-2">
-                  💰 Payment Method:
+                  {t('paymentMethod')}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Cash on Delivery available for all orders
+                  {t('cashOnDelivery')}
                 </p>
               </div>
             </div>
@@ -403,6 +405,7 @@ export default function CartPage() {
 function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: number; discount: number; appliedVoucher: any; onBack: () => void }) {
   const { clearCart, cart } = useCart();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [formData, setFormData] = useState({
@@ -488,26 +491,26 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h1 className="text-4xl font-black text-gray-900 mb-4">ORDER PLACED!</h1>
+            <h1 className="text-4xl font-black text-gray-900 mb-4">{t('orderPlaced').toUpperCase()}!</h1>
             <p className="text-gray-600 mb-2">
-              Thank you for your order! We&apos;ll contact you soon to confirm your delivery.
+              {t('thankYou')}
             </p>
             <p className="text-gray-600 mb-8">
-              Order Total: <span className="font-bold text-pink-500">${total.toFixed(2)}</span>
+              {t('orderTotal')}: <span className="font-bold text-pink-500">${total.toFixed(2)}</span>
             </p>
             {discount > 0 && (
               <p className="text-sm text-green-600 mb-4">
-                You saved ${discount.toFixed(2)} with voucher code: <span className="font-bold">{appliedVoucher?.code}</span>
+                {t('save')} ${discount.toFixed(2)} with voucher code: <span className="font-bold">{appliedVoucher?.code}</span>
               </p>
             )}
             <p className="text-sm text-gray-500 mb-8">
-              Payment Method: <span className="font-semibold">Cash on Delivery</span>
+              {t('paymentMethod')} <span className="font-semibold">{t('cashOnDelivery')}</span>
             </p>
             <Link
               href="/"
               className="inline-block bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-8 rounded-full uppercase text-sm transition-all transform hover:scale-105"
             >
-              Back to Home
+              {t('backToHome')}
             </Link>
           </div>
         </div>
@@ -526,12 +529,12 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
               className="flex items-center gap-2 text-pink-500 hover:text-pink-600 font-medium mb-4"
             >
               <ArrowLeft size={20} />
-              Back to Cart
+              {t('backToCart')}
             </button>
             <h1 className="text-4xl md:text-5xl font-black text-gray-900 uppercase">
-              Checkout
+              {t('checkoutTitle')}
             </h1>
-            <p className="text-gray-600 mt-2">Complete your order with Cash on Delivery</p>
+            <p className="text-gray-600 mt-2">{t('completeOrder')}</p>
           </div>
 
           <div className="bg-white rounded-lg shadow-lg p-8">
@@ -539,12 +542,12 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
               {/* Contact Information */}
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-gray-900 mb-4 uppercase">
-                  Contact Information
+                  {t('contactInformation')}
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Full Name *
+                      {t('fullNameRequired')}
                     </label>
                     <input
                       type="text"
@@ -558,7 +561,7 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Phone Number *
+                      {t('phoneNumberRequired')}
                     </label>
                     <input
                       type="tel"
@@ -572,7 +575,7 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Email Address *
+                      {t('emailAddressRequired')}
                     </label>
                     <input
                       type="email"
@@ -590,12 +593,12 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
               {/* Delivery Address */}
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-gray-900 mb-4 uppercase">
-                  Delivery Address
+                  {t('deliveryAddress')}
                 </h2>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Street Address *
+                      {t('streetAddress')}
                     </label>
                     <input
                       type="text"
@@ -610,7 +613,7 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2">
-                        City *
+                        {t('city')} *
                       </label>
                       <input
                         type="text"
@@ -624,7 +627,7 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2">
-                        Postal Code *
+                        {t('postalCode')} *
                       </label>
                       <input
                         type="text"
@@ -639,7 +642,7 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Delivery Notes (Optional)
+                      {t('deliveryNotes')}
                     </label>
                     <textarea
                       name="notes"
@@ -647,7 +650,7 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
                       onChange={handleChange}
                       rows={3}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                      placeholder="Any special delivery instructions..."
+                      placeholder={t('anySpecialDelivery')}
                     />
                   </div>
                 </div>
@@ -655,25 +658,25 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
 
               {/* Order Summary */}
               <div className="mb-8 p-6 bg-pink-50 rounded-lg">
-                <h3 className="text-xl font-black text-gray-900 mb-4">Order Summary</h3>
+                <h3 className="text-xl font-black text-gray-900 mb-4">{t('orderSummary')}</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between text-gray-700">
-                    <span>Subtotal:</span>
+                    <span>{t('subtotal')}:</span>
                     <span className="font-bold">${(total - (total - discount)).toFixed(2)}</span>
                   </div>
                   {discount > 0 && appliedVoucher && (
                     <div className="flex justify-between text-green-600">
-                      <span>Discount ({appliedVoucher.code}):</span>
+                      <span>{t('discount')} ({appliedVoucher.code}):</span>
                       <span className="font-bold">-${discount.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-gray-700 pt-2 border-t border-pink-200">
-                    <span className="font-bold">Order Total:</span>
+                    <span className="font-bold">{t('orderTotal')}:</span>
                     <span className="font-bold text-pink-500">${total.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-gray-700">
-                    <span className="font-bold">Payment Method:</span>
-                    <span className="font-bold text-pink-500">Cash on Delivery</span>
+                    <span className="font-bold">{t('paymentMethod')}:</span>
+                    <span className="font-bold text-pink-500">{t('cashOnDelivery')}</span>
                   </div>
                 </div>
               </div>
@@ -686,11 +689,11 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
                   isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
-                {isSubmitting ? 'PLACING ORDER...' : 'PLACE ORDER'}
+                {isSubmitting ? t('placingOrder') : t('placeOrder')}
               </button>
 
               <p className="text-sm text-gray-500 text-center mt-4">
-                By placing an order, you agree to our terms and conditions
+                {t('byPlacingOrder')}
               </p>
             </form>
           </div>

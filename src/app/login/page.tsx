@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/app/context/AuthContext';
+import { useLanguage } from '@/app/context/LanguageContext';
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, isAuthenticated, loading } = useAuth();
+  const { t } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -31,7 +33,7 @@ export default function LoginPage() {
         <div className="container mx-auto px-4 py-16 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-pink-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
+            <p className="text-gray-600">{t('loading')}</p>
           </div>
         </div>
       </main>
@@ -68,7 +70,7 @@ export default function LoginPage() {
           {/* Logo/Brand */}
           <div className="text-center mb-8">
             <h1 className="text-5xl font-black text-pink-500 mb-2">oopsskin</h1>
-            <p className="text-gray-600">Sign in to your account</p>
+            <p className="text-gray-600">{t('signInToAccount')}</p>
           </div>
 
           {/* Login Form */}
@@ -85,7 +87,7 @@ export default function LoginPage() {
               {/* Email */}
               <div className="mb-6">
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Email Address
+                  {t('emailAddress')}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
@@ -104,7 +106,7 @@ export default function LoginPage() {
               {/* Password */}
               <div className="mb-6">
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Password
+                  {t('password')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
@@ -131,10 +133,10 @@ export default function LoginPage() {
               <div className="flex items-center justify-between mb-6">
                 <label className="flex items-center">
                   <input type="checkbox" className="mr-2" />
-                  <span className="text-sm text-gray-600">Remember me</span>
+                  <span className="text-sm text-gray-600">{t('rememberMe')}</span>
                 </label>
                 <Link href="#" className="text-sm text-pink-500 hover:text-pink-600 font-medium">
-                  Forgot Password?
+                  {t('forgotPassword')}
                 </Link>
               </div>
 
@@ -146,7 +148,7 @@ export default function LoginPage() {
                   isLoading ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
-                {isLoading ? 'SIGNING IN...' : 'SIGN IN'}
+                {isLoading ? t('signingIn') : t('signIn').toUpperCase()}
               </button>
 
               {/* Divider */}
@@ -155,16 +157,16 @@ export default function LoginPage() {
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">or</span>
+                  <span className="px-2 bg-white text-gray-500">{t('or')}</span>
                 </div>
               </div>
 
               {/* Register Link */}
               <div className="text-center">
                 <p className="text-gray-600">
-                  Don&apos;t have an account?{' '}
+                  {t('dontHaveAccount')}{' '}
                   <Link href="/register" className="text-pink-500 hover:text-pink-600 font-bold">
-                    Create Account
+                    {t('createAccount')}
                   </Link>
                 </p>
               </div>

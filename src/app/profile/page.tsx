@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
+import { useLanguage } from '@/app/context/LanguageContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
@@ -23,6 +24,7 @@ import {
 export default function ProfilePage() {
   const router = useRouter();
   const { user, isAuthenticated, loading } = useAuth();
+  const { t } = useLanguage();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<'info' | 'orders' | 'favourites'>('info');
   const [isLoaded, setIsLoaded] = useState(false);
@@ -184,9 +186,9 @@ export default function ProfilePage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl md:text-5xl font-black text-gray-900 uppercase">
-            My Profile
+            {t('myProfile')}
           </h1>
-          <p className="text-gray-600 mt-2">Manage your account and preferences</p>
+          <p className="text-gray-600 mt-2">{t('accountInformation')}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -213,7 +215,7 @@ export default function ProfilePage() {
                   }`}
                 >
                   <Settings size={20} />
-                  Personal Info
+                  {t('accountInformation')}
                 </button>
                 <button
                   onClick={() => setActiveTab('orders')}
@@ -224,7 +226,7 @@ export default function ProfilePage() {
                   }`}
                 >
                   <Package size={20} />
-                  My Orders
+                  {t('myOrders')}
                 </button>
                 <button
                   onClick={() => setActiveTab('favourites')}
@@ -235,14 +237,14 @@ export default function ProfilePage() {
                   }`}
                 >
                   <Heart size={20} />
-                  Favourites
+                  {t('myFavourites')}
                 </button>
                 <Link
                   href="/cart"
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition-colors"
                 >
                   <ShoppingBag size={20} />
-                  Shopping Cart
+                  {t('shoppingCart')}
                 </Link>
               </nav>
             </div>
@@ -255,7 +257,7 @@ export default function ProfilePage() {
               <div className="bg-white rounded-lg shadow-lg p-8">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-black text-gray-900 uppercase">
-                    Personal Information
+                    {t('accountInformation')}
                   </h2>
                   {!isEditing ? (
                     <button
@@ -263,7 +265,7 @@ export default function ProfilePage() {
                       className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded-full transition-all"
                     >
                       <Edit2 size={18} />
-                      Edit Profile
+                      {t('editProfile')}
                     </button>
                   ) : (
                     <div className="flex gap-2">
@@ -272,14 +274,14 @@ export default function ProfilePage() {
                         className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full transition-all"
                       >
                         <Save size={18} />
-                        Save
+                        {t('save')}
                       </button>
                       <button
                         onClick={handleCancel}
                         className="flex items-center gap-2 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full transition-all"
                       >
                         <X size={18} />
-                        Cancel
+                        {t('cancel')}
                       </button>
                     </div>
                   )}
@@ -289,7 +291,7 @@ export default function ProfilePage() {
                   {/* Name */}
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Full Name
+                      {t('fullName')}
                     </label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -309,7 +311,7 @@ export default function ProfilePage() {
                   {/* Email (Read-only) */}
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Email Address
+                      {t('emailAddress')}
                     </label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -320,13 +322,13 @@ export default function ProfilePage() {
                         className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                    <p className="text-xs text-gray-500 mt-1">{t('emailCannotChange') || 'Email cannot be changed'}</p>
                   </div>
 
                   {/* Phone */}
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Phone Number
+                      {t('phoneNumber')}
                     </label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -346,7 +348,7 @@ export default function ProfilePage() {
                   {/* Address */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Street Address
+                      {t('streetAddress')}
                     </label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -356,7 +358,7 @@ export default function ProfilePage() {
                         value={formData.address}
                         onChange={handleInputChange}
                         disabled={!isEditing}
-                        placeholder="Enter your street address"
+                        placeholder={t('enterStreetAddress') || 'Enter your street address'}
                         className={`w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent ${
                           !isEditing ? 'bg-gray-50 cursor-not-allowed' : ''
                         }`}
@@ -367,7 +369,7 @@ export default function ProfilePage() {
                   {/* City */}
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      City
+                      {t('city')}
                     </label>
                     <input
                       type="text"
@@ -375,7 +377,7 @@ export default function ProfilePage() {
                       value={formData.city}
                       onChange={handleInputChange}
                       disabled={!isEditing}
-                      placeholder="Enter your city"
+                      placeholder={t('enterCity') || 'Enter your city'}
                       className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent ${
                         !isEditing ? 'bg-gray-50 cursor-not-allowed' : ''
                       }`}
@@ -385,7 +387,7 @@ export default function ProfilePage() {
                   {/* Postal Code */}
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Postal Code
+                      {t('postalCode')}
                     </label>
                     <input
                       type="text"
@@ -393,7 +395,7 @@ export default function ProfilePage() {
                       value={formData.postalCode}
                       onChange={handleInputChange}
                       disabled={!isEditing}
-                      placeholder="Enter postal code"
+                      placeholder={t('enterPostalCode') || 'Enter postal code'}
                       className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent ${
                         !isEditing ? 'bg-gray-50 cursor-not-allowed' : ''
                       }`}
@@ -432,10 +434,10 @@ export default function ProfilePage() {
               <div className="bg-white rounded-lg shadow-lg p-8">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-black text-gray-900 uppercase">
-                    My Orders
+                    {t('myOrders')}
                   </h2>
                   <span className="bg-pink-100 text-pink-600 px-4 py-2 rounded-full font-bold text-sm">
-                    {mockOrders.length} Orders
+                    {mockOrders.length} {t('orders')}
                   </span>
                 </div>
 

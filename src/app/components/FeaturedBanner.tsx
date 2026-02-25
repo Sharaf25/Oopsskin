@@ -1,8 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { useLanguage } from '@/app/context/LanguageContext';
 
 export function FeaturedBanner() {
+  const { t } = useLanguage();
+  
   // Fixed positions for stars to avoid hydration mismatch
   const starPositions = [
     { left: '10%', top: '15%', delay: '0s', duration: '2.5s' },
@@ -55,20 +58,19 @@ export function FeaturedBanner() {
           <div className="order-2 md:order-1 text-center md:text-left">
             {/* Title */}
             <h2 className="text-6xl md:text-7xl lg:text-8xl font-black text-pink-500 mb-6 uppercase leading-tight">
-              HABIBTI<br />KITS
+              {t('habibtiKits')}
             </h2>
 
             {/* Description */}
             <p className="text-lg text-gray-700 mb-8 leading-relaxed max-w-md mx-auto md:mx-0">
-              Discover our exclusive makeup kits designed for every occasion. 
-              Complete sets with everything you need to create stunning looks! 💄✨
+              {t('habibtiDescription')}
             </p>
 
             {/* Shop Now Button */}
             <Link href="/packages">
               <button className="group relative bg-pink-500 hover:bg-pink-600 text-white font-black py-5 px-10 rounded-full uppercase text-sm transition-all transform hover:scale-110 shadow-2xl hover:shadow-pink-500/50">
                 <span className="relative z-10 flex items-center gap-2">
-                  SHOP NOW
+                  {t('shopNow')}
                   <svg 
                     className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" 
                     fill="none" 
@@ -89,7 +91,7 @@ export function FeaturedBanner() {
                 <svg className="w-5 h-5 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <span className="font-medium">Premium Quality</span>
+                <span className="font-medium">{t('premiumQuality')}</span>
               </div>
             </div>
           </div>

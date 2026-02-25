@@ -201,7 +201,7 @@ export function Navbar() {
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <User size={18} />
-                          My Profile
+                          {t('myProfile')}
                         </Link>
                         
                         <button
@@ -271,7 +271,7 @@ export function Navbar() {
           <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl mx-4 animate-slide-down" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-bold text-gray-900">{t('search') || 'Search Products'}</h3>
+                <h3 className="text-2xl font-bold text-gray-900">{t('searchProducts')}</h3>
                 <button 
                   onClick={() => setIsSearchOpen(false)}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -286,7 +286,7 @@ export function Navbar() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={t('searchPlaceholder') || 'Search for products...'}
+                    placeholder={t('searchPlaceholder')}
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-pink-500 focus:outline-none text-gray-900"
                     autoFocus
                   />
@@ -296,12 +296,12 @@ export function Navbar() {
                   className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 flex items-center gap-2"
                 >
                   <Search size={20} />
-                  {t('search') || 'Search'}
+                  {t('search')}
                 </button>
               </form>
               
               <div className="mt-4 text-sm text-gray-600">
-                <p>{t('searchHint') || 'Try searching for "lipstick", "foundation", "mascara"...'}</p>
+                <p>{t('searchHint')}</p>
               </div>
             </div>
           </div>

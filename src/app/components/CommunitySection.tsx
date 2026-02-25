@@ -1,34 +1,37 @@
 'use client';
 
 import Link from 'next/link';
+import { useLanguage } from '@/app/context/LanguageContext';
 
 export function CommunitySection() {
+  const { t } = useLanguage();
+  
   const skinCareProducts = [
     {
       id: 1,
-      name: 'Hydrating Face Serum',
-      description: 'Deep hydration with Hyaluronic Acid',
+      name: t('hydratingFaceSerum'),
+      description: t('hydratingDescription'),
       price: '$45.00',
       image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&h=600&fit=crop',
-      benefits: ['Hydrates', 'Brightens', 'Smooths'],
+      benefits: [t('hydrates'), t('brightens'), t('smooths')],
       color: 'from-blue-400 to-blue-600',
     },
     {
       id: 2,
-      name: 'Vitamin C Glow Cream',
-      description: 'Brightening moisturizer with Vitamin C',
+      name: t('vitaminCGlowCream'),
+      description: t('vitaminCDescription'),
       price: '$52.00',
       image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=500&h=600&fit=crop',
-      benefits: ['Anti-aging', 'Radiance', 'Even tone'],
+      benefits: [t('antiAging'), t('radiance'), t('evenTone')],
       color: 'from-orange-400 to-orange-600',
     },
     {
       id: 3,
-      name: 'Night Recovery Mask',
-      description: 'Overnight repair and rejuvenation',
+      name: t('nightRecoveryMask'),
+      description: t('nightMaskDescription'),
       price: '$38.00',
       image: 'https://images.unsplash.com/photo-1571875257727-256c39da42af?w=500&h=600&fit=crop',
-      benefits: ['Repairs', 'Nourishes', 'Restores'],
+      benefits: [t('repairs'), t('nourishes'), t('restores')],
       color: 'from-purple-400 to-purple-600',
     }
   ];
@@ -45,10 +48,10 @@ export function CommunitySection() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-pink-500 mb-4 uppercase">
-            SKIN CARE
+            {t('skinCare')}
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover our luxurious skincare collection designed to nourish, hydrate, and rejuvenate your skin
+            {t('skinCareDescription')}
           </p>
         </div>
 
@@ -82,7 +85,7 @@ export function CommunitySection() {
                   {/* Quick View Badge */}
                   <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0">
                     <span className="bg-white/90 backdrop-blur-sm text-gray-800 text-xs font-bold px-4 py-2 rounded-full shadow-lg">
-                      Quick View
+                      {t('quickView')}
                     </span>
                   </div>
 
@@ -118,7 +121,7 @@ export function CommunitySection() {
                       {product.price}
                     </span>
                     <button className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-6 rounded-full uppercase text-xs transition-all transform hover:scale-110 shadow-lg hover:shadow-xl">
-                      Add to Cart
+                      {t('addToCart')}
                     </button>
                   </div>
                 </div>
@@ -137,7 +140,7 @@ export function CommunitySection() {
         <div className="text-center mt-16">
           <Link href="/skincare">
             <button className="group bg-pink-500 hover:bg-pink-600 text-white font-black py-4 px-12 rounded-full uppercase text-sm transition-all transform hover:scale-110 shadow-xl hover:shadow-2xl flex items-center gap-3 mx-auto">
-              View All Skincare Products
+              {t('viewAllSkincareProducts')}
               <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>

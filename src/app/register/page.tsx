@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/app/context/AuthContext';
+import { useLanguage } from '@/app/context/LanguageContext';
 import { Mail, Lock, User, Phone, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export default function RegisterPage() {
   const router = useRouter();
   const { register, isAuthenticated, loading } = useAuth();
+  const { t } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +37,7 @@ export default function RegisterPage() {
         <div className="container mx-auto px-4 py-16 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-pink-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
+            <p className="text-gray-600">{t('loading')}</p>
           </div>
         </div>
       </main>
@@ -48,13 +50,13 @@ export default function RegisterPage() {
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match!');
+      setError(t('passwordsDoNotMatch'));
       return;
     }
 
     // Validate password length
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters!');
+      setError(t('passwordTooShort'));
       return;
     }
 
@@ -90,7 +92,7 @@ export default function RegisterPage() {
           {/* Logo/Brand */}
           <div className="text-center mb-8">
             <h1 className="text-5xl font-black text-pink-500 mb-2">oopsskin</h1>
-            <p className="text-gray-600">Create your account</p>
+            <p className="text-gray-600">{t('createYourAccount')}</p>
           </div>
 
           {/* Register Form */}
@@ -107,7 +109,7 @@ export default function RegisterPage() {
               {/* Full Name */}
               <div className="mb-4">
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Full Name *
+                  {t('fullNameRequired')}
                 </label>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
@@ -126,7 +128,7 @@ export default function RegisterPage() {
               {/* Email */}
               <div className="mb-4">
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Email Address *
+                  {t('emailAddressRequired')}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
@@ -145,7 +147,7 @@ export default function RegisterPage() {
               {/* Phone */}
               <div className="mb-4">
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Phone Number *
+                  {t('phoneNumberRequired')}
                 </label>
                 <div className="relative">
                   <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
@@ -164,7 +166,7 @@ export default function RegisterPage() {
               {/* Password */}
               <div className="mb-4">
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Password * (min. 6 characters)
+                  {t('passwordRequired')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
@@ -191,7 +193,7 @@ export default function RegisterPage() {
               {/* Confirm Password */}
               <div className="mb-6">
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Confirm Password *
+                  {t('confirmPassword')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
@@ -220,13 +222,13 @@ export default function RegisterPage() {
                 <label className="flex items-start">
                   <input type="checkbox" required className="mt-1 mr-2" />
                   <span className="text-sm text-gray-600">
-                    I agree to the{' '}
+                    {t('agreeToTerms')}{' '}
                     <Link href="#" className="text-pink-500 hover:text-pink-600 font-medium">
-                      Terms & Conditions
+                      {t('termsAndConditions')}
                     </Link>{' '}
-                    and{' '}
+                    {t('and')}{' '}
                     <Link href="#" className="text-pink-500 hover:text-pink-600 font-medium">
-                      Privacy Policy
+                      {t('privacyPolicy')}
                     </Link>
                   </span>
                 </label>
@@ -240,7 +242,7 @@ export default function RegisterPage() {
                   isLoading ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
-                {isLoading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT'}
+                {isLoading ? t('creatingAccount') : t('createAccount').toUpperCase()}
               </button>
 
               {/* Divider */}
@@ -249,16 +251,16 @@ export default function RegisterPage() {
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">or</span>
+                  <span className="px-2 bg-white text-gray-500">{t('or')}</span>
                 </div>
               </div>
 
               {/* Login Link */}
               <div className="text-center">
                 <p className="text-gray-600">
-                  Already have an account?{' '}
+                  {t('alreadyHaveAccount')}{' '}
                   <Link href="/login" className="text-pink-500 hover:text-pink-600 font-bold">
-                    Sign In
+                    {t('signIn')}
                   </Link>
                 </p>
               </div>
