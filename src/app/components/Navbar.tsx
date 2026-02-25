@@ -47,12 +47,30 @@ export function Navbar() {
   ];
 
   const categories = [
-    { name: 'FACE', items: ['Foundation', 'Powder & Setting Spray', 'Primer', 'Concealer & Corrector', 'Contour & Highlight'] },
-    { name: 'EYES', items: ['Eyeshadow', 'Eyebrows', 'Eyeliner', 'Mascara', 'Fake Eyelashes'] },
-    { name: 'LIPS', items: ['Jelly Stained Lips', 'Lip Gloss', 'Lipstick', 'Lip Liner', 'Lip Balm'] },
-    { name: 'CHEEK', items: ['Blush', 'Bronzer'] },
-    { name: 'BRUSHES & TOOLS', items: ['Brushes', 'Tools & Accessories'] },
-    { name: 'MINIS', items: ['Mini Products'] },
+    {
+      name: t('face'),
+      items: [t('foundation'), t('powderSettingSpray'), t('primer'), t('concealerCorrector'), t('contourHighlight')],
+    },
+    {
+      name: t('eyes'),
+      items: [t('eyeshadow'), t('eyebrows'), t('eyeliner'), t('mascara'), t('fakeEyelashes')],
+    },
+    {
+      name: t('lips'),
+      items: [t('jellyStainedLips'), t('lipGloss'), t('lipstick'), t('lipLiner'), t('lipBalm')],
+    },
+    {
+      name: t('cheek'),
+      items: [t('blush'), t('bronzer')],
+    },
+    {
+      name: t('brushesTools'),
+      items: [t('brushes'), t('toolsAccessories')],
+    },
+    {
+      name: t('minis'),
+      items: [t('miniProducts')],
+    },
   ];
 
   return (

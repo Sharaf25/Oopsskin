@@ -1,13 +1,19 @@
+'use client';
+
+import { useLanguage } from '@/app/context/LanguageContext';
+
 export default function SkincarePage() {
-  const skincareProducts = [
-    { name: 'Cleansers', icon: '🧼', color: 'from-blue-400 to-blue-500' },
-    { name: 'Toners', icon: '💧', color: 'from-cyan-400 to-cyan-500' },
-    { name: 'Serums', icon: '✨', color: 'from-purple-400 to-purple-500' },
-    { name: 'Moisturizers', icon: '🌸', color: 'from-pink-400 to-pink-500' },
-    { name: 'Masks', icon: '🎭', color: 'from-green-400 to-green-500' },
-    { name: 'Eye Care', icon: '👁️', color: 'from-indigo-400 to-indigo-500' },
-    { name: 'Sunscreen', icon: '☀️', color: 'from-yellow-400 to-orange-500' },
-    { name: 'Night Care', icon: '🌙', color: 'from-purple-600 to-indigo-700' },
+  const { t } = useLanguage();
+
+  const skincareCategories = [
+    { name: t('cleansers'), icon: '🧼', color: 'from-blue-400 to-blue-500' },
+    { name: t('toners'), icon: '💧', color: 'from-cyan-400 to-cyan-500' },
+    { name: t('serums'), icon: '✨', color: 'from-purple-400 to-purple-500' },
+    { name: t('moisturizers'), icon: '🌸', color: 'from-pink-400 to-pink-500' },
+    { name: t('masks'), icon: '🎭', color: 'from-green-400 to-green-500' },
+    { name: t('eyeCare'), icon: '👁️', color: 'from-indigo-400 to-indigo-500' },
+    { name: t('sunscreen'), icon: '☀️', color: 'from-yellow-400 to-orange-500' },
+    { name: t('nightCare'), icon: '🌙', color: 'from-purple-600 to-indigo-700' },
   ];
 
   return (
@@ -16,11 +22,11 @@ export default function SkincarePage() {
       <section className="relative bg-gradient-to-r from-teal-400 via-blue-400 to-purple-400 min-h-[500px] flex items-center justify-center overflow-hidden">
         <div className="relative z-10 container mx-auto px-4 py-20 text-center">
           <h1 className="text-6xl md:text-7xl font-black text-white mb-4 uppercase">
-            SKINCARE
+            {t('skincareTitle')}
           </h1>
-          <p className="text-2xl text-white mb-6">Healthy skin is beautiful skin</p>
+          <p className="text-2xl text-white mb-6">{t('skincareSubtitle')}</p>
           <button className="bg-white text-purple-600 hover:bg-gray-100 font-bold py-4 px-8 rounded-full uppercase text-sm transition-all transform hover:scale-105">
-            SHOP SKINCARE
+            {t('shopSkincare')}
           </button>
         </div>
       </section>
@@ -29,14 +35,14 @@ export default function SkincarePage() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl md:text-5xl font-black text-pink-500 text-center mb-4 uppercase">
-            YOUR SKINCARE ROUTINE
+            {t('yourSkincareRoutine')}
           </h2>
           <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-            Build the perfect skincare routine with our expertly curated products
+            {t('skincareRoutineSubtitle')}
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {skincareProducts.map((product) => (
+            {skincareCategories.map((product) => (
               <div
                 key={product.name}
                 className={`bg-gradient-to-br ${product.color} rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition-transform h-48 text-center`}
@@ -55,29 +61,23 @@ export default function SkincarePage() {
       <section className="py-16 bg-gradient-to-b from-blue-50 to-purple-50">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl md:text-5xl font-black text-pink-500 text-center mb-12 uppercase">
-            WHY OOPSSKIN SKINCARE?
+            {t('whyOopsskinSkincare')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white rounded-2xl p-8 text-center shadow-lg hover:shadow-2xl transition-shadow">
               <div className="text-6xl mb-4">🌿</div>
-              <h3 className="text-2xl font-bold mb-3">Natural Ingredients</h3>
-              <p className="text-gray-600">
-                Formulated with the finest natural and organic ingredients for gentle, effective care
-              </p>
+              <h3 className="text-2xl font-bold mb-3">{t('naturalIngredients')}</h3>
+              <p className="text-gray-600">{t('naturalIngredientsDesc')}</p>
             </div>
             <div className="bg-white rounded-2xl p-8 text-center shadow-lg hover:shadow-2xl transition-shadow">
               <div className="text-6xl mb-4">🔬</div>
-              <h3 className="text-2xl font-bold mb-3">Scientifically Proven</h3>
-              <p className="text-gray-600">
-                Backed by dermatological research and clinical testing for visible results
-              </p>
+              <h3 className="text-2xl font-bold mb-3">{t('scientificallyProven')}</h3>
+              <p className="text-gray-600">{t('scientificallyProvenDesc')}</p>
             </div>
             <div className="bg-white rounded-2xl p-8 text-center shadow-lg hover:shadow-2xl transition-shadow">
               <div className="text-6xl mb-4">🐰</div>
-              <h3 className="text-2xl font-bold mb-3">Cruelty Free</h3>
-              <p className="text-gray-600">
-                Never tested on animals - beauty with a conscience
-              </p>
+              <h3 className="text-2xl font-bold mb-3">{t('crueltyFree')}</h3>
+              <p className="text-gray-600">{t('crueltyFreeDesc')}</p>
             </div>
           </div>
         </div>
@@ -87,7 +87,7 @@ export default function SkincarePage() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl md:text-5xl font-black text-pink-500 text-center mb-12 uppercase">
-            BESTSELLING SKINCARE
+            {t('bestsellingSkincareTitle')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[1, 2, 3].map((i) => (
@@ -99,14 +99,14 @@ export default function SkincarePage() {
                   <div className="w-40 h-40 bg-white rounded-full"></div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2">Hydrating Serum</h3>
-                  <p className="text-gray-600 mb-4">Deep hydration for all skin types</p>
+                  <h3 className="text-xl font-bold mb-2">{t('skincareProductName')}</h3>
+                  <p className="text-gray-600 mb-4">{t('skincareProductDesc')}</p>
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-2xl font-black">$49.99</span>
                     <div className="flex text-pink-500">★★★★★</div>
                   </div>
                   <button className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-full uppercase text-sm transition-all">
-                    ADD TO CART
+                    {t('addToCart')}
                   </button>
                 </div>
               </div>

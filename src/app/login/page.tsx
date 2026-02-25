@@ -52,7 +52,7 @@ export default function LoginPage() {
     if (result.success) {
       router.push('/');
     } else {
-      setError(result.error || 'Login failed. Please try again.');
+      setError(result.error || t('loginFailed'));
     }
   };
 

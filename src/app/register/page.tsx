@@ -74,7 +74,7 @@ export default function RegisterPage() {
     if (result.success) {
       router.push('/');
     } else {
-      setError(result.error || 'Registration failed. Please try again.');
+      setError(result.error || t('registrationFailed'));
     }
   };
 

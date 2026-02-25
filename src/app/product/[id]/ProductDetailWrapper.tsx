@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, usePathname, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useLanguage } from '@/app/context/LanguageContext';
 import ProductDetailClient from './ProductDetailClient';
 import { API_ENDPOINTS, API_BASE_URL } from '@/config/api';
@@ -134,7 +134,7 @@ export default function ProductDetailWrapper({
           setRelatedProducts(updatedRelated);
         }
       } catch (err: any) {
-        setError(err.message || 'Failed to load product');
+        setError(err.message || t('failedToLoad'));
       } finally {
         setLoading(false);
       }

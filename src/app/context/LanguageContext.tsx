@@ -316,6 +316,55 @@ const translations = {
     anySpecialDelivery: 'Any special delivery instructions...',
     byPlacingOrder: 'By placing an order, you agree to our terms and conditions',
     
+    // Best Sellers / Redirect Page
+    redirectingBestSellers: 'Redirecting to Best Sellers...',
+
+    // New Arrivals Page
+    newArrivals: 'New Arrivals',
+    newArrivalsSubtitle: 'Discover the latest beauty innovations',
+
+    // Makeup Page
+    makeupTitle: 'Makeup',
+    makeupSubtitle: 'Your complete makeup collection',
+    featuredMakeup: 'Featured Makeup',
+
+    // Skincare Page
+    skincareTitle: 'Skincare',
+    skincareSubtitle: 'Healthy skin is beautiful skin',
+    shopSkincare: 'Shop Skincare',
+    yourSkincareRoutine: 'Your Skincare Routine',
+    skincareRoutineSubtitle: 'Build the perfect skincare routine with our expertly curated products',
+    whyOopsskinSkincare: 'Why Oopsskin Skincare?',
+    naturalIngredients: 'Natural Ingredients',
+    naturalIngredientsDesc: 'Formulated with the finest natural and organic ingredients for gentle, effective care',
+    scientificallyProven: 'Scientifically Proven',
+    scientificallyProvenDesc: 'Backed by dermatological research and clinical testing for visible results',
+    crueltyFree: 'Cruelty Free',
+    crueltyFreeDesc: 'Never tested on animals - beauty with a conscience',
+    bestsellingSkincareTitle: 'Bestselling Skincare',
+    skincareProductName: 'Hydrating Serum',
+    skincareProductDesc: 'Deep hydration for all skin types',
+    cleansers: 'Cleansers',
+    toners: 'Toners',
+    serums: 'Serums',
+    moisturizers: 'Moisturizers',
+    masks: 'Masks',
+    eyeCare: 'Eye Care',
+    sunscreen: 'Sunscreen',
+    nightCare: 'Night Care',
+
+    // Packages Page
+    packagesTitle: 'Packages & Sets',
+    packagesSubtitle: 'Curated collections for every beauty need',
+    includes: 'Includes:',
+    whyBuyPackages: 'Why Buy Packages?',
+    saveMore: 'Save More',
+    saveMoreDesc: 'Get up to 30% off when buying sets',
+    curatedCollections: 'Curated Collections',
+    curatedCollectionsDesc: 'Products that work perfectly together',
+    perfectGifts: 'Perfect Gifts',
+    perfectGiftsDesc: 'Ready-to-gift packaging available',
+
     // Error Messages
     passwordsDoNotMatch: 'Passwords do not match!',
     passwordTooShort: 'Password must be at least 6 characters!',
@@ -630,6 +679,55 @@ const translations = {
     anySpecialDelivery: 'أي تعليمات خاصة بالتوصيل...',
     byPlacingOrder: 'بتقديم الطلب، أنت توافق على الشروط والأحكام',
     
+    // Best Sellers / Redirect Page
+    redirectingBestSellers: 'جاري التوجيه للأكثر مبيعاً...',
+
+    // New Arrivals Page
+    newArrivals: 'وصل حديثاً',
+    newArrivalsSubtitle: 'اكتشفي أحدث ابتكارات الجمال',
+
+    // Makeup Page
+    makeupTitle: 'المكياج',
+    makeupSubtitle: 'مجموعة المكياج الكاملة',
+    featuredMakeup: 'مكياج مميز',
+
+    // Skincare Page
+    skincareTitle: 'العناية بالبشرة',
+    skincareSubtitle: 'البشرة الصحية جمال حقيقي',
+    shopSkincare: 'تسوق العناية بالبشرة',
+    yourSkincareRoutine: 'روتين العناية ببشرتك',
+    skincareRoutineSubtitle: 'ابني روتين العناية المثالي ببشرتك مع منتجاتنا المختارة بعناية',
+    whyOopsskinSkincare: 'لماذا عناية oopsskin بالبشرة؟',
+    naturalIngredients: 'مكونات طبيعية',
+    naturalIngredientsDesc: 'مُصاغة بأفضل المكونات الطبيعية والعضوية للعناية اللطيفة والفعالة',
+    scientificallyProven: 'مثبت علمياً',
+    scientificallyProvenDesc: 'مدعوم بالأبحاث الجلدية والاختبارات السريرية لنتائج ملموسة',
+    crueltyFree: 'لم يُختبر على الحيوانات',
+    crueltyFreeDesc: 'لا يُختبر على الحيوانات أبداً - جمال بضمير',
+    bestsellingSkincareTitle: 'الأكثر مبيعاً في العناية بالبشرة',
+    skincareProductName: 'سيروم الترطيب',
+    skincareProductDesc: 'ترطيب عميق لجميع أنواع البشرة',
+    cleansers: 'المنظفات',
+    toners: 'التونر',
+    serums: 'السيروم',
+    moisturizers: 'المرطبات',
+    masks: 'الأقنعة',
+    eyeCare: 'العناية بالعيون',
+    sunscreen: 'واقي الشمس',
+    nightCare: 'العناية الليلية',
+
+    // Packages Page
+    packagesTitle: 'العروض والمجموعات',
+    packagesSubtitle: 'مجموعات مختارة لكل احتياج جمالي',
+    includes: 'يتضمن:',
+    whyBuyPackages: 'لماذا تشتري المجموعات؟',
+    saveMore: 'وفري أكثر',
+    saveMoreDesc: 'احصلي على خصم يصل إلى 30% عند شراء المجموعات',
+    curatedCollections: 'مجموعات مختارة',
+    curatedCollectionsDesc: 'منتجات تعمل معاً بشكل مثالي',
+    perfectGifts: 'هدايا مثالية',
+    perfectGiftsDesc: 'تغليف هدايا جاهز متاح',
+
     // Error Messages
     passwordsDoNotMatch: 'كلمات المرور غير متطابقة!',
     passwordTooShort: 'يجب أن تكون كلمة المرور 6 أحرف على الأقل!',

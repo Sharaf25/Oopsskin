@@ -1,6 +1,6 @@
-import React from 'react';
-import Link from 'next/link';
 import ProductDetailWrapper from './ProductDetailWrapper';
+import ProductNotFound from './ProductNotFound';
+import ProductBreadcrumb from './ProductBreadcrumb';
 import { API_ENDPOINTS, API_BASE_URL } from '@/config/api';
 
 // Product interface matching API response
@@ -85,7 +85,7 @@ async function fetchProduct(id: string, lang: string = 'en'): Promise<Product | 
     };
 
     return product;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -118,7 +118,7 @@ async function fetchRelatedProducts(lang: string = 'en') {
       badge: item.badge || undefined,
       colors: ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E'],
     }));
-  } catch (error) {
+  } catch {
     return [];
   }
 }
@@ -166,19 +166,7 @@ export default async function ProductDetailPage({
   const product = await fetchProduct(productId, lang);
 
   if (!product) {
-    return (
-      <div className="min-h-screen bg-gray-50 pt-20">
-        <div className="container mx-auto px-4 py-20">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h2>
-            <p className="text-gray-600 mb-6">The product you are looking for does not exist.</p>
-            <Link href="/all-products" className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-6 rounded-lg">
-              Back to Products
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
+    return <ProductNotFound />;
   }
 
   // Fetch related products
@@ -186,23 +174,7 @@ export default async function ProductDetailPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Link href="/" className="hover:text-pink-500">Shop All</Link>
-            <span>/</span>
-            {product.category && (
-              <>
-                <span>{product.category}</span>
-                <span>/</span>
-              </>
-            )}
-            <span className="text-gray-900 font-medium">{product.name}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Render client-side interactive part */}
+      <ProductBreadcrumb category={product.category} productName={product.name} />
       <ProductDetailWrapper initialProduct={product} initialRelatedProducts={relatedProducts} />
     </div>
   );

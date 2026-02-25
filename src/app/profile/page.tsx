@@ -17,7 +17,6 @@ import {
   X,
   Lock,
   Package,
-  CreditCard,
   Settings
 } from 'lucide-react';
 
@@ -70,22 +69,22 @@ export default function ProfilePage() {
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto text-center bg-white rounded-2xl shadow-xl p-12">
             <Lock className="mx-auto mb-6 text-pink-500" size={80} />
-            <h1 className="text-4xl font-black text-gray-900 mb-4">SIGN IN REQUIRED</h1>
+            <h1 className="text-4xl font-black text-gray-900 mb-4">{t('signInRequired')}</h1>
             <p className="text-gray-600 mb-8">
-              Please sign in to your account to access your profile
+              {t('signInToViewCart')}
             </p>
             <div className="flex gap-4 justify-center">
               <Link
                 href="/login"
                 className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-8 rounded-full uppercase text-sm transition-all transform hover:scale-105"
               >
-                SIGN IN
+                {t('signIn').toUpperCase()}
               </Link>
               <Link
                 href="/register"
                 className="bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold py-4 px-8 rounded-full uppercase text-sm transition-all"
               >
-                CREATE ACCOUNT
+                {t('createAccount').toUpperCase()}
               </Link>
             </div>
           </div>
@@ -404,15 +403,11 @@ export default function ProfilePage() {
 
                 {/* Account Info */}
                 <div className="mt-8 pt-8 border-t border-gray-200">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Account Information</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">{t('accountInformation')}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-sm text-gray-600 mb-1">Account Status</p>
-                      <p className="font-bold text-green-600">Active</p>
-                    </div>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-sm text-gray-600 mb-1">Member Since</p>
-                      <p className="font-bold text-gray-900">February 2026</p>
+                      <p className="text-sm text-gray-600 mb-1">{t('orderStatus')}</p>
+                      <p className="font-bold text-green-600">{t('processing')}</p>
                     </div>
                   </div>
                 </div>

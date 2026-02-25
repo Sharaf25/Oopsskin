@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Gift, Plus, Minus } from 'lucide-react';
 import { useCart } from '@/app/context/CartContext';

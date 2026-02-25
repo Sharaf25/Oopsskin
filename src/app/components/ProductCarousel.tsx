@@ -100,7 +100,7 @@ export function ProductCarousel() {
         setProducts(transformedProducts);
       }
     } catch (error) {
-      // Failed to fetch best sellers
+      // Failed to fetch best sellers - silently fail, component will not render
     } finally {
       setLoading(false);
     }
@@ -118,7 +118,7 @@ export function ProductCarousel() {
     if (result.success) {
       alert(`${product.name} ${t('addedToCart')}`);
     } else {
-      alert(result.error || 'Failed to add to cart');
+      alert(result.error || t('failedToLoad'));
     }
   };
 
@@ -238,7 +238,7 @@ export function ProductCarousel() {
                           key={idx}
                           className="w-7 h-7 rounded-full border-2 border-gray-300 cursor-pointer hover:border-pink-500 transition-all"
                           style={{ backgroundColor: color }}
-                          title={`Color ${idx + 1}`}
+                          title={`${t('color')} ${idx + 1}`}
                         />
                       ))}
                       {product.colors.length > 5 && (

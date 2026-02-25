@@ -1,39 +1,45 @@
+'use client';
+
+import { useLanguage } from '@/app/context/LanguageContext';
+
 export default function PackagesPage() {
+  const { t } = useLanguage();
+
   const packages = [
     {
       id: 1,
       name: 'Starter Kit',
       description: 'Perfect for beginners - everything you need to start your beauty journey',
       price: 89.99,
-      items: ['Foundation', 'Mascara', 'Lipstick', 'Blush', 'Brush Set'],
+      items: [t('foundation'), t('mascara'), t('lipstick'), t('blush'), 'Brush Set'],
     },
     {
       id: 2,
       name: 'Complete Face Set',
       description: 'Full face coverage with primer, foundation, concealer, and setting spray',
       price: 149.99,
-      items: ['Primer', 'Foundation', 'Concealer', 'Setting Powder', 'Setting Spray'],
+      items: [t('primer'), t('foundation'), t('concealerCorrector'), 'Setting Powder', 'Setting Spray'],
     },
     {
       id: 3,
       name: 'Eye Perfection Bundle',
       description: 'Create stunning eye looks with our complete eye collection',
       price: 129.99,
-      items: ['Eyeshadow Palette', 'Eyeliner', 'Mascara', 'Eye Primer', 'Eye Brushes'],
+      items: [t('eyeshadow'), t('eyeliner'), t('mascara'), 'Eye Primer', 'Eye Brushes'],
     },
     {
       id: 4,
-      name: 'Lip Lover\'s Collection',
+      name: "Lip Lover's Collection",
       description: 'All your favorite lip products in one amazing set',
       price: 79.99,
-      items: ['Lipstick Set', 'Lip Gloss', 'Lip Liner', 'Lip Balm'],
+      items: ['Lipstick Set', t('lipGloss'), t('lipLiner'), t('lipBalm')],
     },
     {
       id: 5,
       name: 'Pro Makeup Kit',
       description: 'Professional-grade products for the makeup artist in you',
       price: 299.99,
-      items: ['Full Product Range', 'Professional Brushes', 'Carrying Case', 'Tutorial Guide'],
+      items: ['Full Product Range', t('brushes'), 'Carrying Case', 'Tutorial Guide'],
     },
     {
       id: 6,
@@ -50,9 +56,9 @@ export default function PackagesPage() {
       <section className="relative bg-gradient-to-r from-pink-600 via-purple-500 to-pink-600 min-h-[400px] flex items-center justify-center overflow-hidden">
         <div className="relative z-10 container mx-auto px-4 py-20 text-center">
           <h1 className="text-6xl md:text-7xl font-black text-white mb-4 uppercase">
-            PACKAGES & SETS
+            {t('packagesTitle')}
           </h1>
-          <p className="text-xl text-white mb-6">Curated collections for every beauty need</p>
+          <p className="text-xl text-white mb-6">{t('packagesSubtitle')}</p>
         </div>
       </section>
 
@@ -67,9 +73,9 @@ export default function PackagesPage() {
               >
                 {/* Package Image Placeholder */}
                 <div className="relative h-64 bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center">
-                  <div className="text-6xl font-black text-white opacity-20">PACKAGE</div>
+                  <div className="text-6xl font-black text-white opacity-20">{t('packages').toUpperCase()}</div>
                   <div className="absolute top-4 right-4 bg-pink-500 text-white px-4 py-2 rounded-full font-bold text-sm">
-                    SAVE 30%
+                    {t('save')} 30%
                   </div>
                 </div>
 
@@ -82,7 +88,7 @@ export default function PackagesPage() {
 
                   {/* Items List */}
                   <div className="mb-4">
-                    <h4 className="font-bold text-sm text-gray-900 mb-2 uppercase">Includes:</h4>
+                    <h4 className="font-bold text-sm text-gray-900 mb-2 uppercase">{t('includes')}</h4>
                     <ul className="space-y-1">
                       {pkg.items.map((item, idx) => (
                         <li key={idx} className="text-sm text-gray-600 flex items-center">
@@ -102,7 +108,7 @@ export default function PackagesPage() {
 
                   {/* Add to Cart Button */}
                   <button className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-full uppercase text-sm transition-all transform hover:scale-105">
-                    ADD TO CART
+                    {t('addToCart')}
                   </button>
                 </div>
               </div>
@@ -115,29 +121,29 @@ export default function PackagesPage() {
       <section className="py-16 bg-pink-50">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl md:text-5xl font-black text-pink-500 text-center mb-12 uppercase">
-            WHY BUY PACKAGES?
+            {t('whyBuyPackages')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="bg-pink-500 text-white w-20 h-20 rounded-full flex items-center justify-center text-3xl font-black mx-auto mb-4">
                 30%
               </div>
-              <h3 className="text-xl font-bold mb-2">Save More</h3>
-              <p className="text-gray-600">Get up to 30% off when buying sets</p>
+              <h3 className="text-xl font-bold mb-2">{t('saveMore')}</h3>
+              <p className="text-gray-600">{t('saveMoreDesc')}</p>
             </div>
             <div className="text-center">
               <div className="bg-pink-500 text-white w-20 h-20 rounded-full flex items-center justify-center text-3xl font-black mx-auto mb-4">
                 ★
               </div>
-              <h3 className="text-xl font-bold mb-2">Curated Collections</h3>
-              <p className="text-gray-600">Products that work perfectly together</p>
+              <h3 className="text-xl font-bold mb-2">{t('curatedCollections')}</h3>
+              <p className="text-gray-600">{t('curatedCollectionsDesc')}</p>
             </div>
             <div className="text-center">
               <div className="bg-pink-500 text-white w-20 h-20 rounded-full flex items-center justify-center text-3xl font-black mx-auto mb-4">
                 ♥
               </div>
-              <h3 className="text-xl font-bold mb-2">Perfect Gifts</h3>
-              <p className="text-gray-600">Ready-to-gift packaging available</p>
+              <h3 className="text-xl font-bold mb-2">{t('perfectGifts')}</h3>
+              <p className="text-gray-600">{t('perfectGiftsDesc')}</p>
             </div>
           </div>
         </div>

@@ -27,29 +27,19 @@ interface Product {
   colors?: string[];
 }
 
-// API Response interface
-interface ProductsAPIResponse {
-  totalItems: number;    // API returns totalItems, not totalCount
-  totalPages: number;
-  currentPage: number;
-  data: Product[];
-}
-
 function AllProductsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // Products per page
+  const [itemsPerPage] = useState(10);
   const [products, setProducts] = useState<Product[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'asc' | 'desc' | 'featured'>('featured');
-  const [minPrice, setMinPrice] = useState<number>(0);
-  const [maxPrice, setMaxPrice] = useState<number>(1000);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const { addToCart } = useCart();
@@ -97,7 +87,6 @@ function AllProductsContent() {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
         throw new Error(`Failed to fetch products: ${response.status}`);
       }
 
@@ -115,11 +104,11 @@ function AllProductsContent() {
         setTotalCount(data.totalItems || data.data.length);
         setTotalPages(data.totalPages || Math.ceil((data.totalItems || data.data.length) / itemsPerPage));
       } else {
-        setError('Invalid response from server');
+        setError(t('failedToLoad'));
       }
       
     } catch (err: any) {
-      setError(`Failed to load products: ${err.message}`);
+      setError(t('failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -168,8 +157,6 @@ function AllProductsContent() {
     : products;
 
   // Use products from current page (already paginated by API)
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
   const currentProducts = filteredProducts;
 
   // Pagination handlers
@@ -297,7 +284,7 @@ function AllProductsContent() {
 
               {/* Price Range Filter */}
               <div className="mt-6 pt-6 border-t border-gray-200">
-                <h3 className="text-lg font-black text-gray-900 mb-4 uppercase">Price Range</h3>
+                <h3 className="text-lg font-black text-gray-900 mb-4 uppercase">{t('priceRange')}</h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between text-sm font-medium text-gray-700">
                     <span>${priceRange[0]}</span>
@@ -356,7 +343,7 @@ function AllProductsContent() {
                     onClick={() => setPriceRange([0, 1000])}
                     className="w-full text-sm text-pink-500 hover:text-pink-600 font-medium"
                   >
-                    Reset Price Filter
+                    {t('resetPriceFilter')}
                   </button>
                 </div>
               </div>
@@ -370,7 +357,7 @@ function AllProductsContent() {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder={t('searchProducts') || 'Search products...'}
+                  placeholder={t('searchProducts')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
@@ -411,7 +398,7 @@ function AllProductsContent() {
               <div className="flex items-center justify-center py-20">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-pink-500 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading products...</p>
+                  <p className="text-gray-600">{t('loadingProducts')}</p>
                 </div>
               </div>
             )}
@@ -424,7 +411,7 @@ function AllProductsContent() {
                   onClick={fetchProducts}
                   className="mt-4 bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-lg"
                 >
-                  Try Again
+                  {t('tryAgain')}
                 </button>
               </div>
             )}
@@ -496,7 +483,7 @@ function AllProductsContent() {
                               key={idx}
                               className="w-7 h-7 rounded-full border-2 border-gray-300 cursor-pointer hover:border-pink-500 transition-all"
                               style={{ backgroundColor: color }}
-                              title={`Color ${idx + 1}`}
+                              title={`${t('color')} ${idx + 1}`}
                             />
                           ))}
                           {product.colors.length > 5 && (
@@ -543,7 +530,7 @@ function AllProductsContent() {
                           if (result.success) {
                             alert(`${product.name} ${t('addedToCart')}`);
                           } else {
-                            alert(result.error || 'Failed to add to cart');
+                            alert(result.error || t('failedToLoad'));
                           }
                         }}
                         className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-full uppercase text-sm transition-all transform hover:scale-105 shadow-md"
@@ -560,13 +547,13 @@ function AllProductsContent() {
             {!loading && !error && currentProducts.length === 0 && (
               <div className="flex items-center justify-center py-20">
                 <div className="text-center">
-                  <p className="text-2xl text-gray-600 mb-4">No products found</p>
-                  <p className="text-gray-500">Try adjusting your filters or check back later.</p>
+                  <p className="text-2xl text-gray-600 mb-4">{t('noProductsFound')}</p>
+                  <p className="text-gray-500">{t('adjustFilters')}</p>
                   <button 
                     onClick={fetchProducts}
                     className="mt-4 bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-lg"
                   >
-                    Reload Products
+                    {t('reloadProducts')}
                   </button>
                 </div>
               </div>
@@ -648,10 +635,7 @@ export default function AllProductsPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen pt-16 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-pink-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading products...</p>
-        </div>
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-pink-500"></div>
       </div>
     }>
       <AllProductsContent />
