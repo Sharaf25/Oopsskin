@@ -136,7 +136,6 @@ export const apiRequest = async (
 
     return data;
   } catch (error) {
-    console.error('API Request Error:', error);
     throw error;
   }
 };

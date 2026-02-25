@@ -70,8 +70,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      console.log('🔍 Checking authentication with token...');
-
       // Call currentUser API with token in Authorization header
       const response = await fetch(API_ENDPOINTS.AUTH.CURRENT, {
         method: 'GET',
@@ -85,7 +83,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Authentication valid:', data);
         
         setUser({
           id: data.id,
@@ -95,14 +92,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: data.role || 'user',
         });
       } else {
-        console.log('Authentication failed, clearing token');
         // Token invalid or expired, clear it
         localStorage.removeItem(APP_CONSTANTS.STORAGE_KEYS.AUTH_TOKEN);
         localStorage.removeItem(APP_CONSTANTS.STORAGE_KEYS.REFRESH_TOKEN);
         setUser(null);
       }
     } catch (error) {
-      console.error('Auth check error:', error);
       if (typeof window !== 'undefined') {
         localStorage.removeItem(APP_CONSTANTS.STORAGE_KEYS.AUTH_TOKEN);
         localStorage.removeItem(APP_CONSTANTS.STORAGE_KEYS.REFRESH_TOKEN);
@@ -123,9 +118,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: 'Client-side only' };
       }
 
-      console.log('📝 Registering user:', { ...userData, password: '***' });
-      console.log('📝 API URL:', API_ENDPOINTS.AUTH.REGISTER);
-
       const response = await fetch(API_ENDPOINTS.AUTH.REGISTER, {
         method: 'POST',
         headers: {
@@ -141,25 +133,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         mode: 'cors',
       });
 
-      console.log('📝 Register response status:', response.status, response.statusText);
-
       const data = await response.json();
-      console.log('📝 Register response data:', data);
 
       if (response.ok) {
-        console.log('✅ Registration successful, auto-logging in...');
         // Registration successful, now login automatically
         return await login(userData.email, userData.password);
       } else {
-        console.error('❌ Registration failed:', data.message);
         return {
           success: false,
           error: data.message || 'Registration failed. Please try again.',
         };
       }
     } catch (error: any) {
-      console.error('❌ Registration error:', error);
-      console.error('❌ Error details:', error.message, error.stack);
       return {
         success: false,
         error: error.message || 'Network error. Please check your connection and ensure the backend server is running on port 5000.',
@@ -177,9 +162,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: 'Client-side only' };
       }
 
-      console.log('Attempting login:', { email, password: '***' });
-      console.log('API URL:', API_ENDPOINTS.AUTH.LOGIN);
-
       const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
         method: 'POST',
         headers: {
@@ -190,14 +172,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         mode: 'cors',
       });
 
-      console.log('Login response status:', response.status);
-
       const data = await response.json();
-      console.log('Login response data:', data);
 
       if (response.ok && data.token) {
-        console.log('Login successful');
-        
         // Store tokens in localStorage
         localStorage.setItem(APP_CONSTANTS.STORAGE_KEYS.AUTH_TOKEN, data.token);
         
@@ -222,11 +199,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
       }
     } catch (error) {
-      console.error('Login error:', error);
-      console.error('Error details:', {
-        type: error instanceof Error ? error.constructor.name : typeof error,
-        message: error instanceof Error ? error.message : 'Unknown error'
-      });
       return {
         success: false,
         error: 'Network error. Please check your connection and ensure the backend server is running on port 5000.',
@@ -241,14 +213,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Only run in browser
     if (typeof window === 'undefined') return;
     
-    console.log('🚪 Logging out...');
-    
     try {
       const token = localStorage.getItem(APP_CONSTANTS.STORAGE_KEYS.AUTH_TOKEN);
       
       // Call backend logout API to invalidate token
       if (token) {
-        console.log('📤 Calling logout API...');
         const response = await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
           method: 'POST',
           headers: {
@@ -260,25 +229,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
 
         if (response.ok) {
-          console.log('✅ Logout API success');
+          // Logout API success
         } else {
-          console.warn('⚠️ Logout API returned error:', response.status);
+          // Logout API returned error
         }
       }
     } catch (error) {
-      console.error('❌ Logout API error:', error);
       // Continue with local logout even if API call fails
     } finally {
       // Always clear tokens and user data locally
-      console.log('🧹 Clearing local storage and user state');
       localStorage.removeItem(APP_CONSTANTS.STORAGE_KEYS.AUTH_TOKEN);
       localStorage.removeItem(APP_CONSTANTS.STORAGE_KEYS.REFRESH_TOKEN);
       setUser(null);
       
       // Trigger a storage event to notify CartContext
       window.dispatchEvent(new Event('storage'));
-      
-      console.log('✅ Logout complete');
     }
   };
 

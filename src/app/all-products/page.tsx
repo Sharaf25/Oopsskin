@@ -65,9 +65,6 @@ function AllProductsContent() {
 
   const fetchProducts = async () => {
     try {
-      console.log('🚀 Starting fetchProducts...');
-      console.log('📍 Current state:', { currentPage, itemsPerPage, language, sortBy, priceRange });
-      
       setLoading(true);
       setError(null);
 
@@ -92,8 +89,6 @@ function AllProductsContent() {
         url += `&search=${encodeURIComponent(searchQuery.trim())}`;
       }
       
-      console.log('🔍 Fetching products from:', url);
-
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -101,65 +96,42 @@ function AllProductsContent() {
         },
       });
 
-      console.log('📡 Response status:', response.status, response.statusText);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Response not OK:', errorText);
         throw new Error(`Failed to fetch products: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('✅ API Response:', data);
-      console.log('📊 Data structure:', {
-        hasData: !!data,
-        hasDataArray: !!(data && data.data),
-        isArray: Array.isArray(data?.data),
-        dataLength: data?.data?.length,
-        totalItems: data?.totalItems,
-      });
 
       // Handle the API response structure
       if (data && data.data && Array.isArray(data.data)) {
-        console.log('✅ Valid data structure, processing products...');
-        
         // Use real rating data from API, add only colors for UI
         const enhancedProducts = data.data.map((product: Product) => ({
           ...product,
           colors: ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E'].slice(0, Math.floor(Math.random() * 4) + 2),
         }));
         
-        console.log('✅ Enhanced products:', enhancedProducts.length, 'items');
-        
         setProducts(enhancedProducts);
         setTotalCount(data.totalItems || data.data.length);
         setTotalPages(data.totalPages || Math.ceil((data.totalItems || data.data.length) / itemsPerPage));
-        
-        console.log('✅ State updated successfully');
       } else {
-        console.error('❌ Unexpected API response structure:', data);
         setError('Invalid response from server');
       }
       
     } catch (err: any) {
-      console.error('❌ Error fetching products:', err);
-      console.error('❌ Error details:', err.message, err.stack);
       setError(`Failed to load products: ${err.message}`);
     } finally {
       setLoading(false);
-      console.log('🏁 fetchProducts completed');
     }
   };
 
   // Fetch products from API
   useEffect(() => {
-    console.log('⚡ useEffect triggered for fetchProducts');
     fetchProducts();
   }, [sortBy, currentPage, language, priceRange, searchQuery]);
 
   // Reset to page 1 when category, sort, price range, or search changes
   useEffect(() => {
-    console.log('⚡ Resetting to page 1');
     setCurrentPage(1);
   }, [selectedCategory, selectedSubcategory, sortBy, priceRange, searchQuery]);
 

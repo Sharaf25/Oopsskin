@@ -20,10 +20,8 @@ export function useAdminAuth() {
 
     // If not authenticated or not admin, redirect to login
     if (!isAuthenticated) {
-      console.log('❌ Not authenticated, redirecting to login...');
       router.push('/login?redirect=/admin');
     } else if (!isAdmin) {
-      console.log('❌ Not authorized as admin, redirecting to home...');
       router.push('/');
     }
   }, [isAuthenticated, isAdmin, loading, router]);

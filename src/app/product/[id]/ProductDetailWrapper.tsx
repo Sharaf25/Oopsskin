@@ -76,8 +76,6 @@ export default function ProductDetailWrapper({
       setError(null);
 
       try {
-        console.log(`🔄 Fetching product ${productId} in ${language}`);
-        
         // Fetch product details
         const productResponse = await fetch(`${API_ENDPOINTS.PRODUCTS.BY_ID(productId)}?lang=${language}`);
         
@@ -86,7 +84,6 @@ export default function ProductDetailWrapper({
         }
 
         const data: APIProduct = await productResponse.json();
-        console.log(`✅ Product data received:`, data);
         
         const updatedProduct: Product = {
           id: data.id.toString(),
@@ -136,10 +133,7 @@ export default function ProductDetailWrapper({
           
           setRelatedProducts(updatedRelated);
         }
-        
-        console.log(`✅ Product fetched successfully`);
       } catch (err: any) {
-        console.error('❌ Error fetching product:', err);
         setError(err.message || 'Failed to load product');
       } finally {
         setLoading(false);

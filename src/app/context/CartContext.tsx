@@ -66,7 +66,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       refreshCart();
     } else {
       // User is logged out - clear the cart
-      console.log('👤 User logged out - clearing cart');
       setCart([]);
     }
   }, [isAuthenticated, isMounted]);
@@ -86,7 +85,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      console.log('🛒 Fetching cart from API...');
       const response = await fetch(API_ENDPOINTS.CART.BASE, {
         method: 'GET',
         headers: {
@@ -99,7 +97,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Cart fetched:', data);
         
         // Transform backend cart items to frontend format
         const transformedCart: CartItem[] = (data.items || []).map((item: BackendCartItem) => ({
@@ -114,13 +111,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
         setCart(transformedCart);
       } else if (response.status === 401) {
-        console.warn('⚠️ Unauthorized - clearing cart');
         setCart([]);
       } else {
-        console.error('❌ Failed to fetch cart:', response.status);
+        // Failed to fetch cart
       }
     } catch (error) {
-      console.error('❌ Error fetching cart:', error);
       setCart([]);
     }
   };
@@ -134,7 +129,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
 
       setLoading(true);
-      console.log('➕ Adding to cart:', { productId, quantity });
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/add`, {
         method: 'POST',
@@ -150,16 +144,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('✅ Item added to cart');
         // Refresh cart to get updated data
         await refreshCart();
         return { success: true };
       } else {
-        console.error('❌ Failed to add to cart:', data.message);
         return { success: false, error: data.message || 'Failed to add item to cart' };
       }
     } catch (error) {
-      console.error('❌ Add to cart error:', error);
       return { success: false, error: 'Network error. Please try again.' };
     } finally {
       setLoading(false);
@@ -179,7 +170,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
 
       setLoading(true);
-      console.log('📝 Updating quantity:', { itemId, quantity });
 
       const response = await fetch(API_ENDPOINTS.CART.UPDATE(itemId), {
         method: 'PUT',
@@ -195,7 +185,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('✅ Quantity updated');
         // Update local cart state optimistically
         setCart((prevCart) =>
           prevCart.map((item) =>
@@ -204,11 +193,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         );
         return { success: true };
       } else {
-        console.error('❌ Failed to update quantity:', data.message);
         return { success: false, error: data.message || 'Failed to update quantity' };
       }
     } catch (error) {
-      console.error('❌ Update quantity error:', error);
       return { success: false, error: 'Network error. Please try again.' };
     } finally {
       setLoading(false);
@@ -224,7 +211,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
 
       setLoading(true);
-      console.log('🗑️ Removing from cart:', itemId);
 
       const response = await fetch(API_ENDPOINTS.CART.DELETE(itemId), {
         method: 'DELETE',
@@ -239,16 +225,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('✅ Item removed from cart');
         // Update local cart state optimistically
         setCart((prevCart) => prevCart.filter((item) => item.id !== itemId));
         return { success: true };
       } else {
-        console.error('❌ Failed to remove item:', data.message);
         return { success: false, error: data.message || 'Failed to remove item' };
       }
     } catch (error) {
-      console.error('❌ Remove from cart error:', error);
       return { success: false, error: 'Network error. Please try again.' };
     } finally {
       setLoading(false);
@@ -257,7 +240,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // CLEAR CART (local only - used on logout)
   const clearCart = () => {
-    console.log('🧹 Clearing cart locally');
     setCart([]);
   };
 

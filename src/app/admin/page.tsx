@@ -77,7 +77,6 @@ export default function AdminDashboard() {
       
       setError('');
     } catch (err) {
-      console.error('Error fetching dashboard data:', err);
       setError('Failed to load dashboard data. Make sure the backend server is running.');
     } finally {
       setLoading(false);

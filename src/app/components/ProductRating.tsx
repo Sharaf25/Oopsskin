@@ -76,7 +76,6 @@ export default function ProductRating({
 
     try {
       setIsSubmitting(true);
-      console.log(`🌟 Submitting rating ${rating} for product ${productId}`);
 
       const authHeaders = getAuthHeaders();
       
@@ -99,7 +98,6 @@ export default function ProductRating({
       }
 
       const data = await response.json();
-      console.log('✅ Rating submitted successfully:', data);
 
       // Update local state
       setSelectedRating(rating);
@@ -113,7 +111,6 @@ export default function ProductRating({
 
       // Silent success (no alert popup)
     } catch (error: any) {
-      console.error('❌ Error submitting rating:', error);
       // Silent error (just log it, no alert)
     } finally {
       setIsSubmitting(false);

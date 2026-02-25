@@ -45,7 +45,6 @@ export default function OrdersPage() {
         setError('');
       }
     } catch (err) {
-      console.error('Error fetching orders:', err);
       setError('Failed to load orders. Make sure the backend server is running.');
     } finally {
       setLoading(false);
@@ -91,7 +90,6 @@ export default function OrdersPage() {
         alert('Failed to update order status');
       }
     } catch (err) {
-      console.error('Error updating order status:', err);
       alert('Error updating order status');
     }
   };

@@ -44,7 +44,6 @@ export default function ProductsPage() {
         setError('');
       }
     } catch (err) {
-      console.error('Error fetching products:', err);
       setError('Failed to load products. Make sure the backend server is running.');
     } finally {
       setLoading(false);
@@ -88,7 +87,6 @@ export default function ProductsPage() {
         alert('Failed to delete product');
       }
     } catch (err) {
-      console.error('Error deleting product:', err);
       alert('Error deleting product');
     }
   };

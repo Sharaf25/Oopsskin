@@ -103,7 +103,6 @@ export default function ProfilePage() {
 
   const handleSave = () => {
     // TODO: API call to update user profile will be added later
-    console.log('Saving profile:', formData);
     setIsEditing(false);
     // Show success message (you can add a toast notification here)
     alert('Profile updated successfully! (API integration pending)');

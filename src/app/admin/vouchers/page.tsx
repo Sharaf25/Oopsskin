@@ -50,7 +50,6 @@ export default function VouchersPage() {
         setVouchers(data.data);
       }
     } catch (error) {
-      console.error('Error fetching vouchers:', error);
       alert('Failed to fetch vouchers');
     } finally {
       setLoading(false);
@@ -67,7 +66,7 @@ export default function VouchersPage() {
         setStats(data.data);
       }
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      // Failed to fetch stats
     }
   };
 
@@ -95,7 +94,6 @@ export default function VouchersPage() {
         fetchStats();
       }
     } catch (error) {
-      console.error('Error toggling voucher:', error);
       alert('Failed to update voucher status');
     }
   };
@@ -116,7 +114,6 @@ export default function VouchersPage() {
         alert('Voucher deleted successfully');
       }
     } catch (error) {
-      console.error('Error deleting voucher:', error);
       alert('Failed to delete voucher');
     }
   };
@@ -398,7 +395,6 @@ function VoucherModal({
         alert(data.message || 'Failed to save voucher');
       }
     } catch (error) {
-      console.error('Error saving voucher:', error);
       alert('Failed to save voucher');
     } finally {
       setLoading(false);

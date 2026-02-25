@@ -56,7 +56,6 @@ async function fetchProduct(id: string, lang: string = 'en'): Promise<Product | 
     });
 
     if (!response.ok) {
-      console.error(`❌ Failed to fetch product ${id}:`, response.status);
       return null;
     }
 
@@ -87,7 +86,6 @@ async function fetchProduct(id: string, lang: string = 'en'): Promise<Product | 
 
     return product;
   } catch (error) {
-    console.error('❌ Error fetching product:', error);
     return null;
   }
 }
@@ -121,7 +119,6 @@ async function fetchRelatedProducts(lang: string = 'en') {
       colors: ['#FFE4E1', '#F5DEB3', '#DEB887', '#D2691E'],
     }));
   } catch (error) {
-    console.error('Error fetching related products:', error);
     return [];
   }
 }

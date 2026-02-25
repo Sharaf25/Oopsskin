@@ -100,7 +100,7 @@ export function ProductCarousel() {
         setProducts(transformedProducts);
       }
     } catch (error) {
-      console.error('Error fetching best sellers:', error);
+      // Failed to fetch best sellers
     } finally {
       setLoading(false);
     }

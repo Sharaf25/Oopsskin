@@ -467,7 +467,6 @@ function CheckoutForm({ total, discount, appliedVoucher, onBack }: { total: numb
         alert('Failed to place order. Please try again.');
       }
     } catch (error) {
-      console.error('Error placing order:', error);
       alert('Failed to place order. Please try again.');
     }
 
