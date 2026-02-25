@@ -194,6 +194,15 @@ const translations = {
     outOfStock: 'Out of stock',
     productNotFound: 'Product Not Found',
     returnToAllProducts: 'Return to All Products',
+    backToProducts: 'Back to Products',
+    shopAll: 'Shop All',
+    youMayAlsoLike: 'You May Also Like',
+    earnPoints: 'You could earn up to',
+    pointsWithVIPs: 'Points with VIPs',
+    productDoesNotExist: 'The product you are looking for does not exist.',
+    loadingProductDetails: 'Loading product details...',
+    error: 'Error',
+    color: 'Color',
     
     // Rating
     reviews: 'reviews',
@@ -499,6 +508,15 @@ const translations = {
     outOfStock: 'غير متوفر',
     productNotFound: 'المنتج غير موجود',
     returnToAllProducts: 'العودة لكل المنتجات',
+    backToProducts: 'العودة للمنتجات',
+    shopAll: 'تسوق الكل',
+    youMayAlsoLike: 'قد يعجبك أيضاً',
+    earnPoints: 'يمكنك كسب حتى',
+    pointsWithVIPs: 'نقطة مع برنامج VIP',
+    productDoesNotExist: 'المنتج الذي تبحث عنه غير موجود.',
+    loadingProductDetails: 'جاري تحميل تفاصيل المنتج...',
+    error: 'خطأ',
+    color: 'اللون',
     
     // Rating
     reviews: 'تقييمات',

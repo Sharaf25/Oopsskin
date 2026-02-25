@@ -59,7 +59,7 @@ export default function ProductDetailWrapper({
   initialRelatedProducts: any[] 
 }) {
   const params = useParams();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [product, setProduct] = useState<Product>(initialProduct);
   const [relatedProducts, setRelatedProducts] = useState<any[]>(initialRelatedProducts);
   const [loading, setLoading] = useState(false);
@@ -149,7 +149,7 @@ export default function ProductDetailWrapper({
         <div className="flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-pink-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading product details...</p>
+            <p className="text-gray-600">{t('loadingProductDetails')}</p>
           </div>
         </div>
       </div>
@@ -160,10 +160,10 @@ export default function ProductDetailWrapper({
     return (
       <div className="container mx-auto px-4 py-20">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Error</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('error')}</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <Link href="/all-products" className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-6 rounded-lg">
-            Back to Products
+            {t('backToProducts')}
           </Link>
         </div>
       </div>

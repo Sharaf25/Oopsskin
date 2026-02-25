@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Gift, Plus, Minus } from 'lucide-react';
 import { useCart } from '@/app/context/CartContext';
 import { useAuth } from '@/app/context/AuthContext';
+import { useLanguage } from '@/app/context/LanguageContext';
 import ProductRating from '@/app/components/ProductRating';
 import Link from 'next/link';
 
@@ -37,6 +38,7 @@ export default function ProductDetailClient({
   const router = useRouter();
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const { t } = useLanguage();
 
   const [product, setProduct] = useState<Product>(initialProduct);
   const [relatedProducts, setRelatedProducts] = useState(initialRelatedProducts);
@@ -69,9 +71,9 @@ export default function ProductDetailClient({
 
     const result = await addToCart(product.id, quantity);
     if (result.success) {
-      alert(`${product.name} added to cart!`);
+      alert(`${product.name} ${t('addedToCart')}`);
     } else {
-      alert(result.error || 'Failed to add to cart');
+      alert(result.error || t('failedToLoad'));
     }
   };
 
@@ -82,9 +84,9 @@ export default function ProductDetailClient({
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('productNotFound')}</h2>
           <Link href="/all-products" className="text-pink-500 hover:underline">
-            Return to All Products
+            {t('returnToAllProducts')}
           </Link>
         </div>
       </div>
@@ -173,7 +175,7 @@ export default function ProductDetailClient({
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-xl text-gray-400 line-through">${product.before_price.toFixed(2)}</span>
                   <span className="bg-red-100 text-red-600 text-sm font-bold px-3 py-1 rounded-full">
-                    SAVE ${(product.before_price - product.price).toFixed(2)}
+                    {t('save')} ${(product.before_price - product.price).toFixed(2)}
                   </span>
                 </div>
               )}
@@ -187,7 +189,7 @@ export default function ProductDetailClient({
                       ? 'bg-yellow-100 text-yellow-600' 
                       : 'bg-red-100 text-red-600'
                   }`}>
-                    {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                    {product.stock > 0 ? `${product.stock} ${t('inStock')}` : t('outOfStock')}
                   </span>
                 )}
               </div>
@@ -196,14 +198,14 @@ export default function ProductDetailClient({
             {/* Color Swatches */}
             {product.colors && product.colors.length > 0 && (
               <div className="mb-6">
-                <p className="text-sm font-bold text-gray-700 mb-3 uppercase">Select Color</p>
+                <p className="text-sm font-bold text-gray-700 mb-3 uppercase">{t('selectColor')}</p>
                 <div className="flex items-center gap-2">
                   {product.colors.map((color, idx) => (
                     <button
                       key={idx}
                       className="w-10 h-10 rounded-full border-2 border-gray-300 hover:border-pink-500 transition-all hover:scale-110"
                       style={{ backgroundColor: color }}
-                      title={`Color ${idx + 1}`}
+                      title={`${t('color')} ${idx + 1}`}
                     />
                   ))}
                 </div>
@@ -212,7 +214,7 @@ export default function ProductDetailClient({
 
             {/* Quantity Selector */}
             <div className="mb-6">
-              <p className="text-sm font-bold text-gray-700 mb-3 uppercase">Quantity</p>
+              <p className="text-sm font-bold text-gray-700 mb-3 uppercase">{t('quantity')}</p>
               <div className="flex items-center gap-3">
                 <button
                   onClick={decrementQuantity}
@@ -235,7 +237,7 @@ export default function ProductDetailClient({
               onClick={handleAddToCart}
               className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-black py-4 px-8 rounded-full uppercase text-lg transition-all transform hover:scale-105 shadow-lg mb-4"
             >
-              {isAuthenticated ? 'Add to Cart' : 'Login to Shop'}
+              {isAuthenticated ? t('addToCartButton') : t('loginToShop')}
             </button>
 
             {/* Points Info */}
@@ -243,7 +245,7 @@ export default function ProductDetailClient({
               <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
                 <Gift size={18} className="text-pink-500" />
                 <span>
-                  You could earn up to <strong className="text-gray-900">59 Points</strong> with VIPs
+                  {t('earnPoints')} <strong className="text-gray-900">59 {t('pointsWithVIPs')}</strong>
                 </span>
               </div>
             )}
@@ -254,7 +256,7 @@ export default function ProductDetailClient({
                 onClick={() => setShowProductInfo(!showProductInfo)}
                 className="w-full flex items-center justify-between text-left font-bold text-gray-900 uppercase"
               >
-                <span>Product Info</span>
+                <span>{t('productInfo')}</span>
                 <span className="text-2xl">{showProductInfo ? '−' : '+'}</span>
               </button>
 
@@ -263,7 +265,7 @@ export default function ProductDetailClient({
                   {/* Tags */}
                   {product.tags && product.tags.length > 0 && (
                     <div>
-                      <p className="font-bold text-gray-900 mb-2">Tags:</p>
+                      <p className="font-bold text-gray-900 mb-2">{t('tags')}:</p>
                       <div className="flex flex-wrap gap-2">
                         {product.tags.map((tag, idx) => (
                           <span
@@ -292,7 +294,7 @@ export default function ProductDetailClient({
                   {/* Category */}
                   {product.category && (
                     <p className="text-gray-600">
-                      <span className="font-bold text-gray-900">Category:</span> {product.category}
+                      <span className="font-bold text-gray-900">{t('category')}:</span> {product.category}
                     </p>
                   )}
                 </div>
@@ -305,7 +307,7 @@ export default function ProductDetailClient({
       {/* Related Products Section */}
       <div className="mt-16">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl md:text-4xl font-black text-pink-500 uppercase">You May Also Like</h2>
+          <h2 className="text-3xl md:text-4xl font-black text-pink-500 uppercase">{t('youMayAlsoLike')}</h2>
         </div>
 
         {/* Related Products Grid */}
