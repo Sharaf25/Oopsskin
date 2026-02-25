@@ -65,6 +65,7 @@ exports.addProduct = async (req, res) => {
 exports.getProducts = async (req, res) => {
   try {
     const lang = req.query.lang === "ar" ? "ar" : "en";
+    const userId = req.user?.id;
 
     const {
       minPrice,
@@ -127,6 +128,18 @@ exports.getProducts = async (req, res) => {
       order: [["price", orderDirection]], // 🔥 Always price
     });
 
+    // Get user ratings for all products in one query
+    let userRatingsMap = {};
+    if (userId) {
+      const productIds = products.rows.map((p) => p.id);
+      const userRatings = await ProductRating.findAll({
+        where: { user_id: userId, product_id: { [Op.in]: productIds } },
+      });
+      userRatings.forEach((r) => {
+        userRatingsMap[r.product_id] = r.rating;
+      });
+    }
+
     const data = products.rows.map((p) => {
       const featured = p.images.find((i) => i.is_featured);
 
@@ -137,6 +150,8 @@ exports.getProducts = async (req, res) => {
         before_price: p.before_price,
         badge: p.badge,
         star_rating: p.star_rating,
+        rating_count: p.rating_count,
+        user_rating: userRatingsMap[p.id] || null,
         stock: p.stock,
         featured_image: featured ? featured.image_url : null,
         category: p.category ? p.category[`name_${lang}`] : null,
