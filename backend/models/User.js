@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
 
   User.associate = (models) => {
     // Associations are run after all models are loaded in models/index.js
+    User.hasMany(models.Favorite, {
+  foreignKey: "user_id",
+  onDelete: "CASCADE",
+  as: "favorites",
+});
     User.hasOne(models.Cart, { foreignKey: "user_id" });
     User.hasMany(models.Order, { foreignKey: "user_id" });
     User.hasMany(models.RefreshToken, { foreignKey: "userId" });
@@ -22,3 +27,4 @@ module.exports = (sequelize, DataTypes) => {
 
   return User;
 };
+

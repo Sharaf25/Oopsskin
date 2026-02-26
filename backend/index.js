@@ -15,6 +15,7 @@ const voucherRouter = require("./routes/voucherRoutes");
 const productRoutes = require("./routes/productRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const tagRoutes = require("./routes/tagRoutes");
+const favoriteRoutes = require("./routes/favoriteRoutes");
 
 const createDummyData = require("./seeders/dummyData"); // Import seeder
 
@@ -52,6 +53,7 @@ app.use("/api/admin/vouchers", voucherRouter);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/tags", tagRoutes);
+app.use("/api/favorites",favoriteRoutes );
 
 // Default route
 app.get("/", (req, res) => res.send("Welcome to the API"));

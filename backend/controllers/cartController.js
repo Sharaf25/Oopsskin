@@ -6,7 +6,9 @@ const {
   Category,
   Tag,
   ProductRating,
+  Favorite,
 } = require("../models");
+const { Op } = require("sequelize");
 
 // ========================================
 // 1️⃣ ADD TO CART
@@ -99,6 +101,13 @@ exports.getCart = async (req, res) => {
       return res.json({ items: [], total: 0 });
     }
 
+    // Batch-fetch user favorites for all cart products
+    const cartProductIds = cart.items.map((item) => item.product_id);
+    const userFavorites = await Favorite.findAll({
+      where: { user_id: userId, product_id: { [Op.in]: cartProductIds } },
+    });
+    const userFavoritesSet = new Set(userFavorites.map((f) => f.product_id));
+
     let total = 0;
 
     const items = cart.items.map((item) => {
@@ -127,6 +136,7 @@ exports.getCart = async (req, res) => {
           star_rating: product.star_rating,
           rating_count: product.rating_count,
           user_rating: userRatingValue,
+          is_favorite: userFavoritesSet.has(product.id),
           stock: product.stock,
           featured_image: featured ? featured.image_url : null,
           category: product.category

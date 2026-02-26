@@ -13,6 +13,11 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Product.associate = (models) => {
+    Product.hasMany(models.Favorite, {
+  foreignKey: "product_id",
+  onDelete: "CASCADE",
+  as: "favoritedBy",
+});
     Product.belongsTo(models.Category, {
       foreignKey: { name: "category_id", allowNull: true },
       onDelete: "SET NULL",

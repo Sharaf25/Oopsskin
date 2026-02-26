@@ -18,6 +18,7 @@ db.Tag = require("./Tag")(sequelize, Sequelize.DataTypes);
 db.Product = require("./Product")(sequelize, Sequelize.DataTypes);
 db.ProductImage = require("./ProductImage")(sequelize, Sequelize.DataTypes);
 db.ProductRating = require("./ProductRating")(sequelize, Sequelize.DataTypes);
+db.Favorite = require("./Favorite")(sequelize, Sequelize.DataTypes);
 
 // Then run associations
 Object.values(db).forEach((model) => {

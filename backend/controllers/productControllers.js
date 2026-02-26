@@ -4,6 +4,7 @@ const {
   Tag,
   ProductImage,
   ProductRating,
+  Favorite,
 } = require("../models");
 
 const { Op } = require("sequelize");
@@ -128,15 +129,24 @@ exports.getProducts = async (req, res) => {
       order: [["price", orderDirection]], // 🔥 Always price
     });
 
-    // Get user ratings for all products in one query
+    // Get user ratings and favorites for all products in one query each
     let userRatingsMap = {};
+    let userFavoritesSet = new Set();
     if (userId) {
       const productIds = products.rows.map((p) => p.id);
-      const userRatings = await ProductRating.findAll({
-        where: { user_id: userId, product_id: { [Op.in]: productIds } },
-      });
+      const [userRatings, userFavorites] = await Promise.all([
+        ProductRating.findAll({
+          where: { user_id: userId, product_id: { [Op.in]: productIds } },
+        }),
+        Favorite.findAll({
+          where: { user_id: userId, product_id: { [Op.in]: productIds } },
+        }),
+      ]);
       userRatings.forEach((r) => {
         userRatingsMap[r.product_id] = r.rating;
+      });
+      userFavorites.forEach((f) => {
+        userFavoritesSet.add(f.product_id);
       });
     }
 
@@ -152,6 +162,7 @@ exports.getProducts = async (req, res) => {
         star_rating: p.star_rating,
         rating_count: p.rating_count,
         user_rating: userRatingsMap[p.id] || null,
+        is_favorite: userFavoritesSet.has(p.id),
         stock: p.stock,
         featured_image: featured ? featured.image_url : null,
         category: p.category ? p.category[`name_${lang}`] : null,
